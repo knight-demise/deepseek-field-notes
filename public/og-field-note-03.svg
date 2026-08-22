@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#071018"/>
+  <path d="M0 105H1200M0 210H1200M0 315H1200M0 420H1200M0 525H1200M150 0V630M300 0V630M450 0V630M600 0V630M750 0V630M900 0V630M1050 0V630" stroke="#9fd4c8" stroke-opacity=".06"/>
+  <circle cx="982" cy="184" r="118" fill="none" stroke="#b8acd8" stroke-opacity=".28"/>
+  <circle cx="982" cy="184" r="64" fill="none" stroke="#9fd4c8" stroke-opacity=".42"/>
+  <path d="M826 184H1138M982 28V340" stroke="#9fd4c8" stroke-opacity=".18" stroke-dasharray="5 9"/>
+  <text x="72" y="74" fill="#9fd4c8" font-family="monospace" font-size="17" letter-spacing="3">DEEPSEEK FIELD NOTES · 03</text>
+  <text x="72" y="218" fill="#eef5f4" font-family="system-ui,sans-serif" font-size="70" font-weight="600">集中式底座，</text>
+  <text x="72" y="302" fill="#9fd4c8" font-family="system-ui,sans-serif" font-size="70" font-weight="600">分布式搜索</text>
+  <text x="72" y="360" fill="#adbcc0" font-family="system-ui,sans-serif" font-size="28">DeepSeek 的非线性双飞轮</text>
+  <text x="72" y="503" fill="#b8acd8" font-family="monospace" font-size="19" letter-spacing="3">MODEL × HARNESS × ECOSYSTEM</text>
+  <text x="72" y="558" fill="#667d80" font-family="monospace" font-size="14" letter-spacing="2">ACTIVE HYPOTHESIS · FALSIFIABLE · 6–18 MONTHS</text>
+</svg>

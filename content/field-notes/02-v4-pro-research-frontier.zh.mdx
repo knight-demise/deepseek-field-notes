@@ -1,0 +1,326 @@
+import { EvidenceNote } from "@/components/field-notes/Evidence"
+import { PullQuote } from "@/components/field-notes/ResearchBlocks"
+import { TrajectoryYieldBlock, ResearchFrontierKillConditions, ResearchFrontierThesis, ResearchFrontierBoundary, FieldNoteNavigation } from "@/components/field-notes/ResearchFrontierBlocks"
+import { ProductionResearchDiagram } from "@/components/diagrams/ProductionResearchDiagram"
+import { ResearchCycleDiagram } from "@/components/diagrams/ResearchCycleDiagram"
+
+<h2 id="update">研究更新｜这个判断是怎样变化的？</h2>
+
+本文最初的问题很简单：**为什么参数规模大得多的 V4 Pro，没有在所有 Agent（智能体）场景中把 Flash 彻底甩开？**
+
+早期一个自然解释是：DeepSeek 可能没有继续无限投入 Pro 后训练，而已经把更多研发资源转向后续底座。后来 Harness（智能体运行框架）实验削弱了这个简单解释。同一颗 V4 Pro 在不同 Harness 下可以表现出非常大的能力差异，这说明 Pro 未必只是“训练得不够”，而可能已经拥有很高的能力上限，只是不同接口下的**能力兑现可靠性**仍然不足。
+
+因此这一版不再试图猜 DeepSeek 到底把多少 GPU、多少研究员从 V4 转给了下一代模型。公开信息不足以证明这种内部资源分配。
+
+<EvidenceNote type="inference" title="标题防误读">
+  <strong>本文所谓“主战场”，特指下一阶段的研究前沿（Research Frontier），而不是当前的生产部署前沿（Production Frontier）。</strong> V4 Pro 完全可能同时是 V4 一代最重要的生产模型。标题讨论的是下一单位研发资源该去哪里寻找能力增量，而不是否认 Pro 当前的产品与工程价值。
+</EvidenceNote>
+
+本文留下的是两个更耐久的问题：
+
+> **在算力有限、训练路线高度未知的情况下，一个前沿实验室怎样以更低成本搜索有效方法，再把胜出方法放大？**
+>
+> **一颗已经足够强的生产模型，能不能通过真实智能体工作不断制造下一代模型需要的研究信号？**
+
+<h2 id="summary">摘要</h2>
+
+DeepSeek V4 从一开始就不是单一模型。它由两个规模悬殊的 MoE 模型组成：
+
+> **V4 Pro：1.6T 总参数 / 49B 激活参数**
+>
+> **V4 Flash：284B 总参数 / 13B 激活参数**
+
+两者都支持百万 Token 上下文。公开技术报告与模型卡显示，Pro Base 在推理、编程、长上下文和世界知识上整体强于 Flash Base，复杂、高难智能体任务上也仍然更有优势。
+
+但进入后训练和智能体阶段后，两者的关系变得更有意思。DeepSeek 在 V4 Preview 时明确表示，Flash 的推理能力接近 Pro，在简单智能体任务上可以与 Pro 相当，同时尺寸更小、速度更快、成本更低。
+
+2026 年 7 月 31 日出现了更强的信号：DeepSeek 明确说明 **V4-Flash-0731 与 Flash Preview 保持相同架构和模型尺寸，只重新进行了后训练**，但多个智能体基准测试显著跃升，官方称结果远超此前的 V4-Pro-Preview。
+
+两周后，V4 Pro GA 上线。官方重点不是宣布新的基础模型架构，而是强调智能体能力，尤其是生产环境中的表现，并加入 Responses API、Codex 适配以及低 / 高 / 最大推理强度。
+
+<EvidenceNote type="official" title="可以确认的 V4 公开事实">
+  Pro 与 Flash 的参数和百万 Token 上下文、Flash 0731 的重新后训练、Pro 0813 的 GA 与生产环境智能体改进，均来自 DeepSeek 技术报告、模型卡和 API 更新日志。它们证明了观察基础，不直接证明下文提出的内部资源分工。
+</EvidenceNote>
+
+这让我逐渐把 V4 放进另一个坐标系：
+
+> **Flash：可能降低寻找有效方法的成本。**
+>
+> **Pro：可能提高最终能力上限，并把有效能力推入生产。**
+>
+> **生产部署：不仅完成任务，也可能产生下一轮研发需要的真实信号。**
+
+所以本文真正讨论的不是“Flash 和 Pro 到底谁赢”，而是**搜索经济学（Search Economics）+ 轨迹产出率（Trajectory Yield）**：怎样更便宜地找到正确方法，以及怎样让今天的模型帮助制造明天的模型。
+
+<h2 id="post-training">一、真正的异常不是 Flash 很强，而是后训练的杠杆太大</h2>
+
+从规模扩展直觉看，Pro 应该更强。事实也确实如此。V4 Pro 有 1.6T 参数、49B 激活参数；Flash 只有 284B / 13B。基础模型评测中，Pro 在推理、编程、长上下文和世界知识上整体继续提高。
+
+所以 V4 并没有证明“小模型不需要规模扩展”。真正值得解释的是：**为什么底座规模差距巨大，而最终智能体能力差距却可以被后训练、推理预算和 Harness 明显压缩？**
+
+V4 报告给出的轮廓很清楚：Flash 获得更大的 thinking budget 后可以在部分 reasoning 任务上逼近 Pro；若干简单 Agent 任务中也能接近，但进入更复杂任务时 Pro 的优势重新扩大。
+
+这说明模型能力至少存在两个不同层次：
+
+> **能力上限** —— 底座最高能做到什么。
+>
+> **能力兑现** —— 训练、推理策略与智能体运行时能稳定调出来多少。
+
+而后者存在巨大的搜索空间：SFT、RL、奖励、智能体数据、工具使用、推理强度、Rollout 与 Harness。前沿模型研发因此不只是规模扩展问题，同时也是一个**搜索问题**。
+
+<PullQuote>参数决定上限的一部分；训练与运行系统决定这个上限有多少会在真实任务里出现。</PullQuote>
+
+<h2 id="throughput">二、0731：Flash 最重要的价值，可能是提高实验吞吐量</h2>
+
+7 月 31 日最大的信号并不是 Flash 榜单涨了多少分，而是：**架构和尺寸完全没改，只重新 post-train，Agent 能力却大幅改变。**
+
+这说明 V4 这一代存在很高的**后训练弹性**：底座训练完成以后，“模型最终会表现成什么样”仍然有很大的优化空间。
+
+这会直接改变研发资源配置。Agent / RL 实验的成本不仅来自训练一次模型，还来自大量 rollout、sandbox execution、reward evaluation、trajectory filtering、regression 与 repeated ablation。
+
+V4 的 post-training 本身就是一个大规模实验系统。公开报告描述了 mathematics、coding、agent、instruction-following 等 specialist 的分别训练，再通过 on-policy distillation 汇总多个专家；配套基础设施支持超长上下文 RL、多 teacher model 和大规模 rollout。官方将这些工程设计与更快的模型迭代周期直接联系起来。
+
+所以真正重要的一项资源可能不是“单次实验能烧多少 GPU”，而是：
+
+> **单位时间、单位算力，能验证多少个有意义的研究假说？**
+
+本文把它叫做**实验吞吐量**。
+
+<EvidenceNote type="inference" title="从更新幅度到研发角色">
+  Flash 0731 证明 post-training 对固定底座仍可产生大幅影响；“因此 Flash 被用于提高内部研究吞吐”仍是解释，而非 DeepSeek 对组织流程的披露。
+</EvidenceNote>
+
+<h2 id="search-economics">三、模型研发的搜索经济学：低成本搜索 → 筛选赢家 → 高成本扩展</h2>
+
+假设一个模型团队同时有 100 个听起来都合理的想法：奖励 A、智能体数据 B、RL 方法 C、工具策略 D、推理策略 E。事前没人知道哪个有效。
+
+如果所有想法都直接在最大模型上完整验证，大量昂贵算力会烧在错误路线中。另一种方法是先用更便宜的模型、低成本 rollout 和快速消融扩大搜索，然后只把少量幸存者送去大模型验证与放大。
+
+> **大量未知想法**
+>
+> → **低成本搜索**
+>
+> → 后训练 / RL / 智能体实验
+>
+> → **信号筛选**
+>
+> → **高成本扩展**
+>
+> → **生产部署前沿**
+
+映射到 V4，Flash 可能天然更适合搜索，Pro 可能天然更适合扩展。
+
+<EvidenceNote type="hypothesis" title="Flash = Search Layer；Pro = Scale Layer？">
+  这是本文的研究假说，不是 DeepSeek 公布的内部训练流水线。公开事实只支持它的前提：Flash 显著更小、更高效，固定尺寸的 0731 更新表现出很高的后训练弹性；Pro 则在困难任务上保持更高能力上限。
+</EvidenceNote>
+
+这两个角色并不意味着“先在 Flash 有效，就一定能在 Pro 有效”。真正关键的是**从搜索到扩展的迁移**。小模型的价值只有在它能以可接受的假阳性率发现大模型上仍成立的方法时才成立。
+
+因此两种资源之间真正的张力是：
+
+> **实验吞吐量** ↔ **能力上限**
+
+甚至可以压成一句话：**大模型负责把能力上限做高，小模型负责把寻找有效方法的成本做低。**
+
+<h2 id="validated-method">四、真正稀缺的不只是算力，而是单位算力能杀死多少错误路线</h2>
+
+两支团队可以拥有相同算力，却拥有完全不同的研究速度。A 团队一个月只能验证 10 个研究假说；B 团队由于代理模型更便宜、Rollout 更高效、评估自动化更完善，一个月能验证 100 个。
+
+最终最强方案仍然要回到大模型验证。但 B 可能更早知道什么值得被大模型放大。
+
+所以真正值得比较的不是**单次实验成本**，而是：
+
+> **单位有效方法验证成本**
+
+也就是最终找到一个能在大模型上继续成立的方法，总共需要多少搜索成本。
+
+这改变了我们理解“效率”的方式。训练 FLOPs、推理成本和显存效率当然重要，但如果一个实验室能更快杀死错误路线，它就能把有限的昂贵扩展预算集中到更少、更可信的胜出方法上。
+
+<PullQuote>Frontier 竞争的一部分，不是看谁能做最多昂贵实验，而是看谁能以最低成本获得一个可迁移的真信号。</PullQuote>
+
+因此 Frontier Model 竞争可能同时包含两个战场：**Scaling Efficiency** 与 **Search Efficiency**。
+
+<h2 id="knowledge-horizon">五、我们的知识断层实验，杀掉了一个更简单的解释</h2>
+
+当时还存在一个自然解释：Flash 在 Agent / Coding 上表现很强，会不会只是因为它知道更新的世界信息？
+
+我们随后做了一次小型 **Effective Knowledge Horizon** 探索。测试覆盖 2025 年 4 月至 10 月间 21 个公开事件，每个问题都在新对话中提出，关闭网页搜索，并允许模型明确回答 unknown。结果中，Pro 对部分 4–9 月事件表现出有效知识，而 Flash 在 3 月之后更频繁地回答 unknown。
+
+<EvidenceNote type="observed" title="这组测试能说明什么，不能说明什么">
+  它只能削弱“Flash 因拥有更新世界知识而在 Agent 任务上更强”这一简单解释。它不能精确测量训练数据 cutoff，也不能排除记忆强度、对齐策略、拒答阈值与部署差异。测试规模有限，因此仅作为探索性观察。
+</EvidenceNote>
+
+这组结果让“更新知识”不再是解释 0731 Agent 跃升的优先假说。更值得继续追踪的变量仍然是 post-training recipe、Agent data、reasoning budget 与 Harness。
+
+<h2 id="production-frontier">六、0813 Pro GA：把赢家推入生产部署前沿</h2>
+
+2026 年 8 月 13 日，DeepSeek 将 V4 Pro 从 Preview 推向 GA。官方重点强调的是 Agent 能力，尤其是生产环境表现，并公布 Terminal Bench 2.1、NL2Repo、DeepSWE、Toolathlon-Verified 等一组 Agent benchmark；同时原生支持 Responses API、适配 Codex，并允许 low / high / max 三档 thinking effort。
+
+这更像一份“进入生产系统”的声明，而不是一轮新的底座架构发布。
+
+<EvidenceNote type="official" title="生产部署前沿的公开依据">
+  DeepSeek Change Log 明确称 GA 版 V4 Pro 的 Agent 能力获得显著增强，尤其是在 production environments 中；API 形态、Codex 适配与 reasoning effort 也围绕真实 Agent 工作负载展开。
+</EvidenceNote>
+
+这也是为什么“Pro 不是主战场”不能被读成“Pro 不重要”。恰恰相反，如果一颗模型要进入真实代码库、真实工具链和长周期任务，它需要更高的能力上限、可靠性、生态适配与运营可控性。Pro 很可能正是 V4 一代最重要的**生产部署前沿**。
+
+但生产部署并不是研究的终点。它还可能成为一种新的研究仪器。
+
+<h2 id="research-instrument">七、生产部署也可以成为研究工具</h2>
+
+DeepSeek V4 技术报告把 Agent 能力与完整运行基础设施放在同一套系统里。DSec 面向 post-training 与 evaluation 提供可扩展 sandbox，单集群可管理大规模并发实例，并强调 trajectory logs、provenance、可恢复执行和确定性 replay 等能力。
+
+这些设施首先服务于内部 rollout、训练与评测。这一点可以确认。但它提示了生产模型可能同时拥有三种角色：
+
+> **生产智能体** —— 完成真实任务。
+>
+> **执行轨迹生成器** —— 留下行动、反馈、失败与修正的结构化记录。
+>
+> **AI 研究助手** —— 帮助研究者编写代码、运行实验、定位失败和生成新的研究候选。
+
+V4 报告对内部研发人员的 agentic coding 使用进行了调查，也直接说明 V4 已经进入 DeepSeek 自身的日常研发工作。于是“模型帮助研发下一代模型”不再只是抽象愿景，它至少已经拥有真实的工作入口。
+
+<ProductionResearchDiagram />
+
+<EvidenceNote type="inference" title="从内部使用到研究闭环">
+  公开资料支持 DSec、内部 agentic coding 和可追溯运行基础设施的存在；“生产轨迹会系统性进入下一代 post-training”并未被公开证明。这里讨论的是可能形成的机制，而不是已经披露的数据管线。
+</EvidenceNote>
+
+<h2 id="trajectory-yield">八、轨迹产出率：一颗模型为下一代研究返回了多少？</h2>
+
+如果生产模型只能完成任务，那么它的价值主要表现为当前效用。如果它在完成任务的同时还能留下高质量、可验证、可归因的轨迹，并帮助这些轨迹转化成 Eval、Harness、数据或 post-training 信号，它就可能产生第二层价值。
+
+本文把这层价值叫做**轨迹产出率**。
+
+<TrajectoryYieldBlock />
+
+它不是一个已经可以直接相乘的成熟数学指标。有效智能体工作、执行轨迹质量、研究信号与推理成本没有统一量纲，公式只是概念目标，不应被用来制造虚假的数值精确性。
+
+轨迹产出率真正要迫使我们问四个问题：
+
+1. 模型完成的任务是否真的有用，而不是 benchmark theater？
+2. 轨迹是否足够完整、可回放、可归因，能定位哪一步改变了结果？
+3. 成功或失败是否能转化成 Eval、Harness、数据选择或训练方法上的动作？
+4. 产生这些信号的推理与运营成本是否低到值得持续运行？
+
+当四者同时成立时，生产预算与研发预算的边界会开始变得模糊：**同一份推理成本既购买当前工作，也购买未来研究信息。**
+
+<h2 id="failure-asset">九、高质量的结构化失败，可能比又一个成功 Demo 更值钱</h2>
+
+Agent 研发最稀缺的未必是更多“成功案例”，而是可诊断的失败。
+
+一个普通失败只告诉你任务没做完；一个高质量失败轨迹则可能告诉你：模型在哪一步误读环境、何时丢失状态、哪个工具反馈被忽略、是否反复进入同一错误分支、Harness 是否诱导了无效行动，以及 reward / eval 是否遗漏了关键约束。
+
+这些信息可以分别返回不同层：
+
+> Failure → New Eval
+>
+> Failure → Harness Fix
+>
+> Failure → Better Tool Contract
+>
+> Failure → Data Selection
+>
+> Failure → Post-training Objective
+
+所以生产环境的价值不只在于规模，也在于它覆盖了实验室难以预先枚举的任务分布。真实工作能够暴露长尾环境、跨工具依赖、恢复能力和长周期一致性问题。
+
+<EvidenceNote type="hypothesis" title="最重要的数据边界">
+  目前没有公开证据证明公共 DeepSeek Harness 用户的轨迹已被送入未来 DeepSeek 模型训练。隐私、授权、数据治理与安全约束也会显著限制这种回流。本文只主张：可验证的内部或明确授权轨迹，理论上可以成为高价值研究资产。
+</EvidenceNote>
+
+<h2 id="two-frontiers">十、生产部署前沿 ≠ 研究前沿</h2>
+
+生产部署前沿关心的是：今天哪颗模型可以以可接受的成本、延迟与可靠性完成最重要的真实任务。
+
+研究前沿关心的是：下一单位研究投入，在哪里最可能产生新的能力增量、缩短发现周期，或者改变下一代模型的训练方式。
+
+两者可以由同一颗模型部分承担，但不必完全重合。
+
+V4 Pro 可以同时是：
+
+> V4 一代最重要的生产模型；
+>
+> 验证高难方法迁移的 Scale Layer；
+>
+> 内部研究人员的 Agent 工具；
+>
+> 产生高价值任务轨迹的入口。
+
+但下一阶段真正的研究前沿仍可能位于更便宜的搜索模型、更好的后训练方法、更强的 Harness / 评估、更高质量的智能体数据、持续学习，或全新的下一代底座。
+
+<PullQuote>最重要的生产模型，不一定是所有新研究假说最便宜的试验场；最便宜的试验场，也不一定拥有最终的能力上限。</PullQuote>
+
+这正是标题的真实含义。它不是把 Pro 从舞台上拿掉，而是把“当前最强产品”和“下一步最值钱的研究位置”拆成两个问题。
+
+<h2 id="core-loop">十一、完整闭环：搜索 → 扩展 → 工作 → 轨迹 → 学习</h2>
+
+把前面的论证压缩以后，第二篇真正留下的不是 Flash / Pro 排名，而是一条资源循环：
+
+> **搜索** —— 用更低成本探索大量未知方法。
+>
+> **扩展** —— 在更高能力上限上验证、放大胜出方法。
+>
+> **工作** —— 把能力放进真实生产环境完成有用任务。
+>
+> **执行轨迹** —— 捕获成功、失败、工具反馈与修正过程。
+>
+> **学习** —— 将可验证信号转化为评估、Harness、数据与训练的改变。
+
+<ResearchCycleDiagram />
+
+只有最后一条边成立，循环才真正闭合。大量工作日志不是学习；大量轨迹不是研究信号；大量研究信号也不自动等于模型改进。中间仍然需要 Verification、Attribution、Selection、Absorption 与 Regression。
+
+<h2 id="metrics">十二、怎样验证这套搜索经济学？</h2>
+
+这篇文章不应该靠更多叙事来证明自己。它需要四类长期指标。
+
+**1. 从搜索到扩展的迁移**
+
+在 Flash 或其他低成本 proxy 上选出的赢家，有多少能在 Pro 或下一代大模型上保持方向一致、收益显著且不过度依赖特定 benchmark？
+
+**2. 单位有效方法验证成本**
+
+从提出假说、完成便宜实验、排除 false positives，到在大模型与 held-out 任务上确认有效，平均需要多少总计算、时间与人工成本？
+
+**3. 轨迹产出率**
+
+生产智能体每单位推理成本带来的有效工作、可回放轨迹与可执行研究信号是否持续增加？哪些失败真正改变了评估、Harness、数据或训练？
+
+**4. 研究周期**
+
+从发现失败、形成假说、运行实验、验证迁移到把改进交付进下一版本，时间是否持续缩短？
+
+<EvidenceNote type="observed" title="比榜单更难伪装的验证方式">
+  单次 benchmark 跃升只能证明某次结果。跨模型迁移、held-out 稳定性、总搜索成本和研究周期才更接近这篇文章真正的可证伪对象。
+</EvidenceNote>
+
+<section id="kill-conditions"><ResearchFrontierKillConditions /></section>
+
+<section id="final-thesis">
+<ResearchFrontierThesis>
+
+《V4 Pro 或许从来就不是主战场》并不是说 V4 Pro 不重要。相反，公开信号表明，它完全可能是 V4 一代最重要的生产部署前沿：更高的能力上限、更强的复杂智能体表现，以及围绕真实生产环境构建的 API 与 Harness 适配。
+
+本文真正提出的是：前沿实验室的核心竞争，可能不只在于谁能训练最大的模型，也在于谁能以更低成本搜索训练方法、以更高质量筛选胜出方法，再让生产系统不断返回下一代研究需要的信号。
+
+Flash 0731 显示了固定底座上的高后训练弹性；Pro GA 显示了把能力推向真实智能体工作的价值；DSec 与内部智能体编程则说明模型、工作与研究已经拥有相互连接的基础设施入口。
+
+**所以 V4 的战略结构也许不是 Flash 与 Pro 二选一，而是一条“搜索 → 扩展 → 工作 → 执行轨迹 → 学习”的闭环：用更便宜的系统扩大未知搜索，用更强的系统验证和生产，再把真实工作的可验证轨迹变成下一代模型的研究信号。**
+
+如果这个闭环最终成立，一颗模型的价值就不再只由今天完成了多少任务决定，还取决于它是否让明天的模型更快出现。
+
+</ResearchFrontierThesis>
+</section>
+
+<section id="research-boundary"><ResearchFrontierBoundary /></section>
+
+<h2 id="sources">参考来源</h2>
+
+1. [DeepSeek-V4 Technical Report](https://arxiv.org/abs/2606.19348)：V4 Pro / Flash 架构与规模、1M context、Base / Agent 评测、post-training 系统、DSec sandbox 与内部 agentic coding。
+2. [DeepSeek V4 Preview Release](https://api-docs.deepseek.com/news/news260424/)：Pro / Flash 的官方定位，Flash 在 reasoning 与简单 Agent 任务上的表现、模型尺寸与成本差异。
+3. [DeepSeek API Change Log](https://api-docs.deepseek.com/updates/)：V4-Flash-0731 保持架构与尺寸、仅重新 post-training；V4-Pro-0813 GA、生产环境 Agent 能力、Responses API、Codex 与 reasoning effort。
+4. [DeepSeek-V4-Pro official model card](https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro)：官方模型参数、上下文与评测表。
+5. [DeepSeek-V4-Flash-0731 official model card](https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash-0731)：0731 权重、模型配置与公开说明。
+
+<FieldNoteNavigation />

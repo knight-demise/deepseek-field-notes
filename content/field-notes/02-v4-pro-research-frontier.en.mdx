@@ -1,0 +1,324 @@
+import { EvidenceNote } from "@/components/field-notes/Evidence"
+import { PullQuote } from "@/components/field-notes/ResearchBlocks"
+import { TrajectoryYieldBlock, ResearchFrontierKillConditions, ResearchFrontierThesis, ResearchFrontierBoundary, FieldNoteNavigation } from "@/components/field-notes/ResearchFrontierBlocks"
+import { ProductionResearchDiagram } from "@/components/diagrams/ProductionResearchDiagram"
+import { ResearchCycleDiagram } from "@/components/diagrams/ResearchCycleDiagram"
+
+<h2 id="update">Update｜How the thesis changed</h2>
+
+The original question was simple: **why did the much larger V4 Pro not decisively outdistance Flash across every agent setting?**
+
+One early explanation came naturally: perhaps DeepSeek had stopped investing heavily in Pro post-training and redirected more research capacity toward a later foundation model. Subsequent harness experiments weakened that account. The same V4 Pro can expose dramatically different performance under different harnesses. Pro may therefore already possess a high Capability Ceiling while still suffering from uneven **Capability Reliability** at the interface layer.
+
+This version no longer tries to guess how many GPUs or researchers DeepSeek moved from V4 to a successor. Public evidence cannot establish that allocation.
+
+<EvidenceNote language="en" type="inference" title="What “main battlefield” means">
+  <strong>In this note, “main battlefield” means the next Research Frontier — not the current Production Frontier.</strong> V4 Pro may still be the most important production model of the V4 generation. The title asks where the next unit of R&D effort is most likely to find capability gains; it does not deny Pro’s present engineering or product value.
+</EvidenceNote>
+
+Two more durable questions remain:
+
+> **With finite compute and a highly uncertain method space, how does a frontier lab search cheaply for effective methods and then amplify the winners?**
+>
+> **Can a sufficiently strong production model generate the research signals required by its successor through real agent work?**
+
+<h2 id="summary">Summary</h2>
+
+DeepSeek V4 was never a single model. It consists of two MoE models at very different scales:
+
+> **V4 Pro: 1.6T total parameters / 49B activated**
+>
+> **V4 Flash: 284B total parameters / 13B activated**
+
+Both support a one-million-token context window. The public technical report and model cards show Pro Base generally ahead of Flash Base in reasoning, coding, long-context, and world knowledge, with the gap widening again on difficult agent tasks.
+
+The relationship becomes more interesting after post-training. At preview, DeepSeek said Flash reasoning approached Pro and could match Pro on simple agent tasks, while being smaller, faster, and cheaper.
+
+Then came the stronger signal on July 31, 2026. DeepSeek stated that **V4-Flash-0731 preserved the preview model’s architecture and size and was only re-post-trained**. Yet its agent benchmark results moved sharply, in several cases far beyond the earlier V4-Pro-Preview.
+
+Two weeks later V4 Pro reached GA. The announcement did not introduce a new foundation architecture. It emphasized stronger agent performance — especially in production environments — alongside native Responses API support, Codex adaptation, and low / high / max reasoning effort.
+
+<EvidenceNote language="en" type="official" title="What the public V4 record establishes">
+  Pro and Flash scale, the one-million-token context, the Flash 0731 re-post-training update, and the Pro 0813 production-oriented GA are documented by DeepSeek’s technical report, model cards, and API change log. These facts establish the observation base; they do not establish the R&D role allocation proposed below.
+</EvidenceNote>
+
+That sequence suggests a different coordinate system:
+
+> **Flash may reduce the cost of finding effective methods.**
+>
+> **Pro may raise the final capability ceiling and carry validated capability into production.**
+>
+> **Production may do more than complete work; it may generate real signals for the next research cycle.**
+
+The note is therefore not about which model “wins.” It is about **Search Economics + Trajectory Yield**: how to find the right method more cheaply, and how to make today’s model help produce tomorrow’s.
+
+<h2 id="post-training">1. The anomaly is not that Flash is strong — it is the leverage of post-training</h2>
+
+Scaling intuition says Pro should be stronger, and the evidence agrees. Pro has 1.6T total and 49B activated parameters; Flash has 284B and 13B. Across the base-model evaluation, Pro generally advances the frontier in reasoning, coding, long-context, and world knowledge.
+
+V4 does not show that small models make scaling unnecessary. The real question is: **how can a large gap in foundation-model scale be compressed so substantially in realized agent capability by post-training, reasoning budget, and harness design?**
+
+The V4 report provides the outline. With more thinking budget, Flash can approach Pro on parts of reasoning; it also comes close on several simpler agent benchmarks. The Pro advantage expands again as task difficulty rises.
+
+This points to at least two layers of capability:
+
+> **Capability Ceiling** — the upper bound afforded by the foundation model.
+>
+> **Capability Realization** — how much training, inference policy, and agent runtime can expose reliably.
+
+The second layer contains a large search space: SFT, RL, rewards, agent data, tool use, reasoning effort, rollout policy, and harness design. Frontier model development is therefore not only a Scaling Problem. It is also a **Search Problem**.
+
+<PullQuote>Parameters shape part of the ceiling. Training and runtime systems determine how much of that ceiling appears in real work.</PullQuote>
+
+<h2 id="throughput">2. 0731: Flash may matter most as a source of Experimental Throughput</h2>
+
+The most important fact about July 31 is not the number of points Flash gained. It is that **architecture and size stayed fixed, only post-training changed, and agent behavior changed materially anyway**.
+
+That suggests high **Post-training Elasticity**: even after the foundation model has been trained, substantial room remains to determine what kind of model it becomes in practice.
+
+This changes the economics of research allocation. The cost of agent and RL experimentation is not just one training run. It includes large volumes of rollouts, sandbox execution, reward evaluation, trajectory filtering, regression analysis, and repeated ablation.
+
+V4 post-training is itself a large experimental system. The public report describes separate mathematics, coding, agent, and instruction-following specialists followed by on-policy distillation across teachers. Its infrastructure supports long-context RL, many teacher models, and large-scale rollout. DeepSeek explicitly links those systems to a faster model-release iteration cycle.
+
+The strategically scarce resource may therefore be **Experimental Throughput**:
+
+> **How many meaningful research hypotheses can the lab test per unit of time and compute?**
+
+<EvidenceNote language="en" type="inference" title="From update elasticity to research role">
+  Flash 0731 shows that post-training can still change a fixed foundation model substantially. The claim that Flash therefore serves as an internal research-throughput layer remains an interpretation, not a disclosed DeepSeek workflow.
+</EvidenceNote>
+
+<h2 id="search-economics">3. Search economics: Cheap Search → Select Winners → Expensive Scaling</h2>
+
+Imagine a model team with one hundred plausible ideas: Reward A, Agent Data B, RL Recipe C, Tool Policy D, Reasoning Strategy E. Before running the experiments, nobody knows which ideas work.
+
+Testing every idea end to end on the largest model burns expensive compute on paths that were always going to fail. An alternative is to search broadly with cheaper models, lower-cost rollouts, and fast ablations — then send only the survivors to larger-model validation and amplification.
+
+> **Many Unknown Ideas**
+>
+> → **Cheap Search**
+>
+> → Post-training / RL / Agent Experiments
+>
+> → **Signal Selection**
+>
+> → **Expensive Scaling**
+>
+> → **Production Frontier**
+
+Mapped onto V4, Flash may be naturally suited to Search while Pro may be naturally suited to Scale.
+
+<EvidenceNote language="en" type="hypothesis" title="Flash = Search Layer; Pro = Scale Layer?">
+  This is the field note’s hypothesis, not DeepSeek’s published training pipeline. Public evidence supports only its premises: Flash is materially smaller and more efficient; the fixed-size 0731 update exhibits high post-training elasticity; Pro retains a higher capability ceiling on hard tasks.
+</EvidenceNote>
+
+The mapping does not imply that an intervention that wins on Flash will necessarily work on Pro. The decisive variable is **Search-to-Scale Transfer**. A small model is useful as a proxy only when it finds methods that survive larger-model validation at an acceptable false-positive rate.
+
+The real tension is therefore:
+
+> **Experimental Throughput** ↔ **Capability Ceiling**
+
+Or, compressed into one line: **large models raise the capability ceiling; smaller models may lower the cost of discovering how to reach it.**
+
+<h2 id="validated-method">4. The scarce resource is how many wrong paths each unit of compute can kill</h2>
+
+Two teams can own the same amount of compute and still operate at very different research speeds. Team A tests ten hypotheses per month. Team B uses a cheaper proxy model, more efficient rollouts, and stronger automated evaluation to test one hundred.
+
+The strongest method must still return to the large model for validation. But Team B may learn much earlier which methods deserve expensive amplification.
+
+The right comparison is therefore not simply **Cost per Experiment**. It is:
+
+> **Cost per Validated Method**
+
+How much total search cost is required to discover one method that continues to work on a larger model and on held-out tasks?
+
+This broadens the meaning of efficiency. Training FLOPs, inference price, and memory efficiency remain important. But a lab that kills wrong directions faster can concentrate scarce scaling budget on fewer, better-supported winners.
+
+<PullQuote>One axis of frontier competition is not who can run the most expensive experiments, but who can buy one transferable truth at the lowest total cost.</PullQuote>
+
+Frontier competition may therefore have two simultaneous fronts: **Scaling Efficiency** and **Search Efficiency**.
+
+<h2 id="knowledge-horizon">5. Our knowledge-horizon test eliminated a simpler explanation</h2>
+
+There was another natural account of Flash’s strength: perhaps it performed well in agent and coding work simply because it knew more recent world events.
+
+We ran a small exploratory **Effective Knowledge Horizon** test across twenty-one public events from April through October 2025. Each question started in a fresh chat, browsing was disabled, and the model was explicitly allowed to answer unknown. Pro displayed usable knowledge of some events from April through September, while Flash more often returned unknown after March.
+
+<EvidenceNote language="en" type="observed" title="What this test does — and does not — show">
+  The result weakens the simple hypothesis that Flash’s agent gains came from a more recent knowledge horizon. It does not identify a precise training-data cutoff, and it cannot separate memory strength, alignment, refusal threshold, or serving differences. The sample is small and should be treated as exploratory evidence only.
+</EvidenceNote>
+
+“Newer knowledge” therefore stopped being the preferred explanation for the 0731 agent jump. Post-training recipe, agent data, reasoning budget, and harness design remain the more useful variables to investigate.
+
+<h2 id="production-frontier">6. Pro 0813 GA: carrying the winner into the Production Frontier</h2>
+
+On August 13, 2026, DeepSeek moved V4 Pro from preview to GA. The release focused on stronger agent performance — particularly in production environments — and reported results on Terminal Bench 2.1, NL2Repo, DeepSWE, Toolathlon-Verified, and other agent benchmarks. It also added native Responses API support, Codex adaptation, and low / high / max thinking effort.
+
+This looks less like another foundation-model release and more like a declaration of production readiness.
+
+<EvidenceNote language="en" type="official" title="The public basis for Production Frontier">
+  DeepSeek’s change log states that V4 Pro GA significantly improves agent capabilities, especially in production environments. Its API form, Codex support, and reasoning controls are organized around real agent workloads.
+</EvidenceNote>
+
+This is why “not the main battlefield” must never be read as “not important.” A model entering real repositories, toolchains, and long-horizon workflows needs a high capability ceiling, reliability, ecosystem fit, and operational control. Pro may well be the most important **Production Frontier** of the V4 generation.
+
+Production deployment, however, need not be the end of research. It can also become a research instrument.
+
+<h2 id="research-instrument">7. Production as Research Instrument</h2>
+
+The V4 technical report places agent capability and execution infrastructure inside the same system. DSec provides scalable sandboxes for post-training and evaluation; a single cluster can manage very large numbers of concurrent instances. The design emphasizes trajectory logs, provenance, resumable execution, and deterministic replay.
+
+Those facilities are publicly documented as infrastructure for internal rollout, training, and evaluation. That is the confirmed boundary. But they suggest three roles a production model might play:
+
+> **Production Agent** — completes real tasks.
+>
+> **Trajectory Generator** — leaves structured records of action, feedback, failure, and repair.
+>
+> **AI Research Assistant** — helps researchers write code, run experiments, diagnose failure, and generate candidates.
+
+The V4 report also surveys internal researchers with day-to-day experience using V4 Pro for agentic coding. “A model that helps develop the next model” therefore has at least one concrete operational entry point.
+
+<ProductionResearchDiagram language="en" />
+
+<EvidenceNote language="en" type="inference" title="From internal use to a research loop">
+  Public evidence establishes DSec, internal agentic-coding use, and traceable execution infrastructure. It does not establish that production trajectories systematically enter the next model’s post-training. The diagram describes a possible mechanism, not a disclosed data pipeline.
+</EvidenceNote>
+
+<h2 id="trajectory-yield">8. Trajectory Yield: what does a model return to the next research cycle?</h2>
+
+If a production model only completes tasks, its value is primarily present utility. If it also leaves high-quality, verifiable, attributable trajectories — and helps convert them into eval, harness, data, or post-training signals — it may create a second layer of value.
+
+This field note calls that value **Trajectory Yield**.
+
+<TrajectoryYieldBlock language="en" />
+
+This is not a mature metric whose factors can already be multiplied cleanly. Useful Agent Work, Trajectory Quality, Research Signal, and Inference Cost have no shared unit. The formula is a conceptual objective and must not be used to manufacture numerical precision.
+
+Trajectory Yield is valuable because it forces four questions:
+
+1. Does the model complete work with genuine operational value rather than benchmark theater?
+2. Are its trajectories complete, replayable, and attributable enough to identify what changed the outcome?
+3. Can success or failure trigger an action in evaluation, harness design, data selection, or training?
+4. Is the cost of producing that work and signal low enough to sustain?
+
+When all four hold, the line between production budget and research budget begins to blur: **the same inference spend purchases present work and information about future capability.**
+
+<h2 id="failure-asset">9. A high-quality structured failure may be worth more than another successful demo</h2>
+
+Agent R&D may need diagnosable failures more than it needs another polished success case.
+
+An ordinary failure says that the task was not completed. A high-quality failure trajectory can reveal where the model misread the environment, when it lost state, which tool feedback it ignored, whether it entered a repeated error branch, how the harness shaped the behavior, and whether the reward or evaluator missed a constraint.
+
+That information can return to several layers:
+
+> Failure → New Eval
+>
+> Failure → Harness Fix
+>
+> Failure → Better Tool Contract
+>
+> Failure → Data Selection
+>
+> Failure → Post-training Objective
+
+Production matters not only because of scale, but because it exposes distributions a laboratory cannot enumerate in advance: long-tail environments, cross-tool dependencies, recovery behavior, and long-horizon consistency failures.
+
+<EvidenceNote language="en" type="hypothesis" title="The critical data boundary">
+  There is currently no public evidence that trajectories from public DeepSeek Harness users are being sent into future DeepSeek model training. Privacy, consent, governance, and security would place real limits on such a loop. The claim here is narrower: verifiable internal or explicitly authorized trajectories could become valuable research assets.
+</EvidenceNote>
+
+<h2 id="two-frontiers">10. Production Frontier ≠ Research Frontier</h2>
+
+The Production Frontier asks which model can complete today’s most important real tasks at acceptable cost, latency, and reliability.
+
+The Research Frontier asks where the next unit of research effort is most likely to produce a new capability gain, shorten discovery, or change how the next model is trained.
+
+One model can participate in both, but the two frontiers do not have to coincide.
+
+V4 Pro can simultaneously be:
+
+> the most important production model of the V4 generation;
+>
+> a Scale Layer for validating hard-method transfer;
+>
+> an agent tool for internal researchers;
+>
+> an entry point for high-value task trajectories.
+
+Yet the next Research Frontier may still lie in a cheaper search model, a better post-training recipe, stronger harnesses and evals, higher-quality agent data, continual learning, or an entirely new foundation model.
+
+<PullQuote>The most important production model need not be the cheapest testbed for every new hypothesis. The cheapest testbed need not possess the final capability ceiling.</PullQuote>
+
+That is the title’s actual meaning. It separates “the strongest product now” from “the highest-value location for the next research step.”
+
+<h2 id="core-loop">11. The complete loop: Search → Scale → Work → Trajectory → Learn</h2>
+
+Compressed to its core, this field note leaves behind a resource loop rather than a model ranking:
+
+> **Search** — explore many uncertain methods at lower cost.
+>
+> **Scale** — validate and amplify winners at a higher capability ceiling.
+>
+> **Work** — deploy capability on useful tasks at the Production Frontier.
+>
+> **Trajectory** — capture success, failure, tool feedback, and repair.
+>
+> **Learn** — turn verified signal into changes in eval, harness, data, and training.
+
+<ResearchCycleDiagram language="en" />
+
+The loop closes only if the last edge is real. Work logs are not learning. Trajectories are not automatically research signal. Research signal is not automatically model improvement. Verification, attribution, selection, absorption, and regression still sit between them.
+
+<h2 id="metrics">12. How should Search Economics be tested?</h2>
+
+This thesis should not be defended with more narrative. It requires four classes of longitudinal evidence.
+
+**1. Search-to-Scale Transfer**
+
+How often do winners selected on Flash or another cheap proxy retain direction and effect size on Pro or a successor model — without depending on one benchmark?
+
+**2. Cost per Validated Method**
+
+From hypothesis and cheap experiment through false-positive elimination and large-model held-out validation, what total compute, time, and human effort buys one method that survives?
+
+**3. Trajectory Yield**
+
+Does each unit of production inference cost return more useful work, replayable trajectories, and actionable research signal over time? Which failures actually change an eval, harness, dataset, or training objective?
+
+**4. Research Cycle Time**
+
+Does the time from observed failure to hypothesis, experiment, transfer validation, and release keep contracting?
+
+<EvidenceNote language="en" type="observed" title="A test harder to game than one benchmark jump">
+  A single score increase proves one result. Cross-model transfer, held-out stability, total search cost, and end-to-end research cycle time are closer to the genuine falsification targets of this thesis.
+</EvidenceNote>
+
+<section id="kill-conditions"><ResearchFrontierKillConditions language="en" /></section>
+
+<section id="final-thesis">
+<ResearchFrontierThesis language="en">
+
+“V4 Pro May Never Have Been the Main Battlefield” does not mean V4 Pro is unimportant. Public signals suggest the opposite: it may be the V4 generation’s most important Production Frontier, combining a higher capability ceiling, stronger hard-agent performance, and an API and harness surface designed for real production work.
+
+The deeper claim is that frontier-lab competition may depend not only on who can train the largest model, but on who can search the method space more cheaply, select winners more reliably, and make production return signal to the next research cycle.
+
+Flash 0731 demonstrates high Post-training Elasticity on a fixed foundation. Pro GA demonstrates the value of carrying capability into real agent work. DSec and internal agentic coding show that Model, Work, and Research already have concrete infrastructure through which they can touch.
+
+**V4’s strategic structure may therefore be neither Flash nor Pro alone, but a Search → Scale → Work → Trajectory → Learn loop: use cheaper systems to explore uncertainty, stronger systems to validate and produce, then turn verifiable traces of real work into research signal for the next model.**
+
+If that loop closes, a model’s value is no longer determined only by how much work it completes today. It also depends on whether it makes tomorrow’s model arrive sooner.
+
+</ResearchFrontierThesis>
+</section>
+
+<section id="research-boundary"><ResearchFrontierBoundary language="en" /></section>
+
+<h2 id="sources">Sources</h2>
+
+1. [DeepSeek-V4 Technical Report](https://arxiv.org/abs/2606.19348): Pro / Flash architecture and scale, one-million-token context, base and agent evaluation, post-training system, DSec sandbox infrastructure, and internal agentic-coding use.
+2. [DeepSeek V4 Preview Release](https://api-docs.deepseek.com/news/news260424/): the official Pro / Flash positioning, Flash reasoning and simple-agent performance, and the differences in model size and economics.
+3. [DeepSeek API Change Log](https://api-docs.deepseek.com/updates/): Flash 0731 retaining architecture and size while being re-post-trained; Pro 0813 GA, production-environment agent capability, Responses API, Codex support, and reasoning effort.
+4. [DeepSeek-V4-Pro official model card](https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro): official model scale, context, and evaluation tables.
+5. [DeepSeek-V4-Flash-0731 official model card](https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash-0731): the 0731 checkpoint, configuration, and public release materials.
+
+<FieldNoteNavigation language="en" />

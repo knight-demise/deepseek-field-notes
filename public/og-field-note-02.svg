@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#071019"/>
+  <path d="M0 84h1200M0 168h1200M0 252h1200M0 336h1200M0 420h1200M0 504h1200M0 588h1200M84 0v630M168 0v630M252 0v630M336 0v630M420 0v630M504 0v630M588 0v630M672 0v630M756 0v630M840 0v630M924 0v630M1008 0v630M1092 0v630" stroke="#6b91a4" stroke-opacity=".07"/>
+  <circle cx="1000" cy="130" r="330" fill="#b89748" fill-opacity=".08"/>
+  <text x="76" y="72" fill="#d8bd78" font-family="monospace" font-size="18" letter-spacing="4">DEEPSEEK FIELD NOTES · 02 / RESEARCH FRONTIER</text>
+  <text x="76" y="226" fill="#dce8ed" font-family="Arial, sans-serif" font-size="74" font-weight="600">V4 Pro 或许从来就不是</text>
+  <text x="76" y="318" fill="#d8bd78" font-family="Arial, sans-serif" font-size="96" font-weight="600">主战场</text>
+  <text x="76" y="390" fill="#8ca1ab" font-family="Arial, sans-serif" font-size="28">从低成本搜索到轨迹产出：DeepSeek 模型研发的搜索经济学</text>
+  <path d="M78 488h220" stroke="#d8bd78"/><text x="76" y="535" fill="#718894" font-family="monospace" font-size="17">SEARCH → SCALE → WORK → TRAJECTORY → LEARN</text>
+</svg>

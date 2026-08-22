@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs><radialGradient id="g" cx="75%" cy="20%"><stop stop-color="#123a52"/><stop offset="1" stop-color="#071019"/></radialGradient><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#7fd4ff" stroke-opacity=".06"/></pattern></defs>
+  <rect width="1200" height="630" fill="url(#g)"/><rect width="1200" height="630" fill="url(#grid)"/>
+  <text x="80" y="90" fill="#8dd8ff" font-family="monospace" font-size="20" letter-spacing="4">DEEPSEEK FIELD NOTES · 01</text>
+  <text x="80" y="220" fill="#edf7fb" font-family="Arial, sans-serif" font-size="70" font-weight="700">DeepSeek Harness</text>
+  <text x="80" y="315" fill="#edf7fb" font-family="Arial, sans-serif" font-size="62" font-weight="700">可能远不只是一个</text>
+  <text x="80" y="410" fill="#8dd8ff" font-family="Arial, sans-serif" font-size="72" font-weight="700">Coding Agent</text>
+  <path d="M80 485H1120" stroke="#8dd8ff" stroke-opacity=".25"/>
+  <text x="80" y="540" fill="#9ab1be" font-family="monospace" font-size="21">OPEN AGENT RUNTIME / DISTRIBUTED CAPABILITY PRODUCTION</text>
+</svg>

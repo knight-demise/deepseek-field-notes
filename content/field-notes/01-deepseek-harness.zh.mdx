@@ -1,0 +1,234 @@
+import { EvidenceNote } from "@/components/field-notes/Evidence"
+import { PullQuote, KillConditions, ThesisBlock, ResearchBoundary, NextFieldNote } from "@/components/field-notes/ResearchBlocks"
+import { CapabilityFlywheelDiagram } from "@/components/diagrams/CapabilityFlywheelDiagram"
+import { DistributedRDEconomicsDiagram } from "@/components/diagrams/DistributedRDEconomicsDiagram"
+
+<h2 id="update">研究更新｜后来我发现，这不只是一个技术架构问题</h2>
+
+这篇文章最初提出的判断很简单：**DeepSeek Harness（智能体运行框架，以下简称 Harness）的长期意义可能不只是一个编程智能体，而是一层开放 Agent Runtime（智能体运行时）。** 这个判断我仍然保留。
+
+但继续观察 DSH 的社区生态以后，我意识到，Everything is a Plugin（万物皆插件）的意义可能不只在技术层。它还可能改变一个智能体平台：**谁承担研发成本，谁搜索未知能力，以及一项能力被创造一次之后，多少人可以复用。**
+
+传统封闭智能体团队如果想支持浏览器、数据库、记忆、搜索、部署和特定行业工作流，大量能力都必须由内部团队自己开发。开放插件架构则可能把其中相当一部分长尾能力探索，变成无数拥有自身需求的开发者分别投入成本、并行实验，再由整个生态复用结果。
+
+<PullQuote>能力飞轮不再只是“能力越来越多”。它还可能同时意味着：<strong>创新飞轮 + 成本压缩飞轮</strong>。</PullQuote>
+
+<EvidenceNote type="hypothesis" title="本文新增的第二层判断">
+  开放运行时如果能让候选能力被验证、持久化和跨项目复用，就可能同时形成创新飞轮与成本压缩飞轮。这不是 DeepSeek 官方路线表，而是本文等待验证的战略假说。
+</EvidenceNote>
+
+<h2 id="summary">摘要</h2>
+
+DeepSeek Harness 最容易被理解成“DeepSeek 版 Claude Code”。这个理解不能说错，但它可能把 DSH 看得太小了。
+
+DeepSeek 官方公开架构已经明确：Cordis 是 DSH 之下的插件框架；工具、模型适配、文件访问、智能体循环等能力都可以作为插件挂载进共享上下文。官方项目也直接使用 **“万物皆插件”** 描述其架构。
+
+<EvidenceNote type="official" title="公开架构事实">
+  模型、工具、技能、会话、沙箱、存储、循环、调度与界面等能力位于可组合的插件体系中；DSH 当前仍处于开发者预览阶段，兼容性破坏性变更仍可能发生。
+</EvidenceNote>
+
+所以 DeepSeek 开放的并不只是一个固定编程产品。更值得研究的一种解释是：**它正在搭建一层开放智能体运行时。**
+
+过去是核心团队创造能力、用户消费能力；现在可能逐渐变成：核心团队创造底座，生态共同创造外围能力，用户复用整个生态已经创造出来的能力。
+
+于是 DSH 真正值得下注的问题不再只是“有多少 Plugin”，而是：
+
+<PullQuote>开放运行时能不能把能力研发从一个公司的内部成本，转化成整个生态的分布式投资？</PullQuote>
+
+<h2 id="why-coding">一、为什么第一站是编程智能体？</h2>
+
+如果长期目标比 Coding Agent 更大，为什么第一站仍然是 Coding？
+
+因为代码几乎是当前最适合训练智能体“行动”的环境之一。模型修改代码以后可以立刻运行、编译、测试、读取错误、修改、再验证。因此天然形成：
+
+> **行动 → 反馈 → 验证 → 修正**
+
+与大量现实任务相比，Coding 有一个很大的优势：结果更容易机器验证。程序是否运行、测试是否通过、输出是否符合约束，很多时候不需要再请一个人主观判断。
+
+所以代码给智能体提供了一个**低成本、高密度的行动—反馈环境**。这使编程很适合作为智能体运行时的第一块试验田。
+
+<EvidenceNote type="inference" title="为什么从代码开始">
+  “编程是开放智能体运行时的第一块试验场”是基于可验证反馈密度提出的解释，并非官方说明 DSH 长期产品边界的事实。
+</EvidenceNote>
+
+但如果 DSH 只是为了“帮程序员写代码”，接下来很多架构选择其实没有必要做到现在这么开放。真正值得研究的是第二步。
+
+<h2 id="everything-plugin">二、真正重要的不是功能，而是“万物皆插件”</h2>
+
+DSH 最重要的地方不是今天有多少工具，而是：**能力被放在哪里。**
+
+Cordis 让插件向共享上下文提供服务、类型化事件与可逆副作用。官方架构文档进一步说明，模型适配器、工具注册表、会话日志与智能体循环本身都可以替换和重组。
+
+这意味着，一个传统智能体更像“产品已经定义好了，模型在产品里执行”；而 DSH 更接近“运行时定义好了，智能体的具体形态可以继续组合”。
+
+开发者不一定需要等待核心团队什么时候把某项功能做进官方版本。只要存在稳定的 capability seam，就可以自己实现、自己替换、自己组合、自己实验。
+
+<PullQuote>“万物皆插件”不是一句“我们支持插件”，而是一种架构选择：尽量降低外围能力创新必须经过中央团队的程度。</PullQuote>
+
+<h2 id="creator">三、从使用能力走向生产能力</h2>
+
+在文章形成时，DSH 暴露了用于检查运行时、定义动态插件包并把它们挂载回当前智能体的工具面。这使 Harness 不只是一套静态工具集合，也成为可以被实验、修改和优化的对象。
+
+普通 Agent 的链条是：
+
+> 人类构建工具 → 智能体使用工具
+
+更开放的运行时开始接近：
+
+> 人类 / 智能体识别缺失能力 → 实验插件 → 组合新运行时 → 智能体获得新的行动方式
+
+也就是从**智能体使用能力**向**智能体参与能力生产**移动。
+
+<EvidenceNote type="official" title="可确认的能力边界">
+  DSH 官方仓库提供对动态 Cordis 包的定义、运行、停止与回滚机制；这证明运行时可被实验，不等于智能体已经获得持续学习。
+</EvidenceNote>
+
+写出一个插件不等于持续学习。真正的能力积累仍然需要验证、持久化、复用、筛选、回滚与安全机制。
+
+<h2 id="distributed-rd">四、开放插件真正厉害的地方：它改变了“谁来付研发成本”</h2>
+
+假设一个封闭智能体公司想支持浏览器、数据库、记忆、GitHub、DevOps、可视化和上百种行业工作流。如果全部内部开发，每增加一个能力，核心团队就要重新承担设计、工程、测试与维护。
+
+而开放运行时可以采用完全不同的路径。A 开发者需要 PostgreSQL，B 开发者需要浏览器，C 开发者需要 Kubernetes，D 开发者需要某个行业工具。他们本来就有自身需求，于是每个人都可能主动投入时间、Token、工程成本和领域知识解决自己的问题。
+
+如果最后这些能力可以成为可复用插件，**一次私人研发投入就开始具有公共生态资产的性质。**
+
+<DistributedRDEconomicsDiagram />
+
+数字平台研究长期把第三方 complementors 看成开放平台创新能力的重要来源；相关公开研究也表明，开放的边界资源能够促进 complementary innovation，但 generativity 与治理必须同时存在。
+
+<EvidenceNote type="observed" title="平台生态证据">
+  既有数字平台研究支持“开放接口可以扩大第三方互补创新”这一通用机制；它不能自动证明 DSH 已经形成高质量能力市场。
+</EvidenceNote>
+
+DSH 的特殊之处在于，这里生产的互补组件本身就是智能体能力。因此它可能把原本核心团队需要串行承担的大量长尾能力研发，转变成**生态级并行研发**。
+
+这不是“DeepSeek 免费让别人替自己打工”。开发者首先是在解决自己的问题，插件也可以服务自己的项目。更准确的经济结构是：**一个中心组织不再需要独自为整个未知搜索空间买单。**
+
+<h2 id="cost-compression">五、开发者也获得反向飞轮：复用越多，新增能力越便宜</h2>
+
+假设没有插件生态，100 个开发者都需要浏览器，极端情况下可能是 100 个人分别实现一遍。而如果生态已经存在成熟的浏览器插件，第一个人承担主要开发成本，后面的人主要承担集成与验证成本。
+
+当浏览器、记忆、数据库、搜索、部署与可观测性等能力越来越多地存在于可复用库存中，新开发者不再从 0 开始，而是从已有能力库存开始。
+
+<CapabilityFlywheelDiagram />
+
+这就是**开发者成本压缩飞轮**。它的核心不是“所有人平均平摊成本”，而是：生态中的能力复用提高研发投入的复用次数，因此可能降低新增智能体的边际开发成本。
+
+插件越成熟，新开发者越不需要重复造轮子；进入门槛越低，又可能有更多开发者贡献新的长尾能力。于是供给增加和开发成本下降互相强化。
+
+<h2 id="ai-amplifier">六、AI 平台还有一个传统软件生态没有这么强的特殊回路</h2>
+
+更有意思的是：开发插件本身，也可以由 AI 帮助完成。
+
+于是理论上可以出现：
+
+> 更强模型 → 编写插件更容易 → 同一个开发者能尝试更多能力 → 插件数量和质量增加 → Harness 更有用 → 更多真实智能体工作负载
+
+这相当于平台提供的智能，本身又在降低为平台创造互补能力的成本。
+
+传统软件平台是开发者使用 IDE 写应用；AI 智能体平台进一步变成：**开发者使用平台里的 AI，帮助开发这个平台的新能力。**
+
+<EvidenceNote type="hypothesis" title="AI-native generativity">
+  “模型能力提升会系统性降低插件生产成本，并增强平台生成力”仍需用插件开发周期、维护成本与跨版本可用性数据验证。
+</EvidenceNote>
+
+<h2 id="api-loop">七、DeepSeek 能不能从中获得 API 回流？</h2>
+
+答案不是“一定”。
+
+DSH 把模型本身也放在可替换的插件体系里，也就是说开发者可以替换模型。所以一个 DSH 插件的产生和使用，并不必然给 DeepSeek 带来 API 收入。
+
+但是，如果大量 DSH 工作负载最终使用 DeepSeek API，那么开发、调试和运行插件都会产生模型调用。DeepSeek API 按输入与输出 Token 计费，因此这类工作负载在采用 DeepSeek 模型时可以转化为 API 收入。
+
+<EvidenceNote type="inference" title="条件性经济回路">
+  开放生态可以降低 DeepSeek 自身必须承担的长尾能力研发成本；只有当工作负载实际选择 DeepSeek 模型时，生态增长才可能进一步形成 API 价值回流。
+</EvidenceNote>
+
+所以不能写“开源插件越多，DeepSeek 一定越赚钱”。正确的强判断是：**成本外部化与 API 回流是两条不同的边，前者来自开放接口，后者取决于模型竞争力与真实选择。**
+
+<h2 id="governance">八、真正的竞争也不是“插件越多越好”</h2>
+
+到这里还有一个危险的过度推论：让大家随便开发，Plugin 越多，就会自然选出最好的。
+
+现实不会这么简单。平台生态研究早就指出，开放与 generativity 本身并不足以保证高质量价值共创；平台还需要治理、边界资源、筛选和控制机制，否则 complementor 生态也可能出现协调与质量问题。
+
+在智能体插件世界，这个问题会更加严重。可能同时出现 30 个浏览器插件、20 个记忆插件、15 个路由器。真正有价值的不是谁宣传最好，而是谁更稳定、更省 Token、跨任务泛化、更安全、不会破坏上下文，并且在不同模型上仍然有效。
+
+所以健康生态真正需要的是：
+
+> **竞争 + 评估 + 筛选**
+
+开发者负责大量产生候选，真实任务负责暴露失败，评估负责淘汰偶然的“英雄式单次成功”。最终真正应该胜出的，是在合理环境中持续有效的机制。
+
+<h2 id="two-loops">九、所以真正出现的是两个主要正反馈循环</h2>
+
+把前面所有东西压缩以后，第一篇真正多出来的新模型不是三十个概念，而是两个循环。
+
+**循环 A｜平台创新飞轮**
+
+> 核心运行时 → 开放能力接口 → 开发者投入缺失能力 → 大量实验并行发生 → 更优能力出现 → DSH 变强 → 更多开发者参与
+
+这里的核心收益是搜索宽度增加，以及中央团队不需要承担所有搜索成本。
+
+**循环 B｜开发者成本压缩飞轮**
+
+> 更多插件 → 更多成熟能力可以复用 → 新智能体边际开发成本下降 → 更多人可以开发智能体 → 更多长尾需求被解决 → 更多插件
+
+这里的核心收益是重复研发减少。
+
+两者相互连接：开放越成功，能力库存越大；能力库存越大，开发新能力越便宜；开发越便宜，分布式搜索越宽。
+
+<h2 id="core-model">核心模型｜从编程智能体到分布式能力生产平台</h2>
+
+> **编程智能体**
+>
+> ↓
+>
+> **开放智能体运行时** · 万物皆插件
+>
+> ↓
+>
+> **分布式研发搜索**
+>
+> ↓
+>
+> 平台创新循环 × 开发者成本循环
+>
+> ↓
+>
+> **真实任务竞争 → 评估 → 筛选**
+>
+> ↓
+>
+> **更优、可复用的能力**
+
+如果这些工作负载又选择 DeepSeek 模型，还可能出现“DSH 增长 → API 使用 → 模型 / 基础设施资源 → 更强模型 → 更低能力创造成本”的第三条回路。但它是**条件性的**，不是必然。
+
+<section id="kill-conditions"><KillConditions /></section>
+
+<section id="final-thesis">
+<ThesisBlock>
+
+DeepSeek Harness 最值得研究的地方，不是它今天与 Claude Code、Codex 谁拥有更多功能。
+
+真正不同的地方，是它把模型、工具、技能、会话、沙箱、存储、循环与界面等能力放进一个可组合的开放运行时，让开发者无需修改 Harness 主体，就能直接参与外围能力创新。
+
+这改变的不只是技术架构，也可能改变智能体研发的经济结构。原本必须由一个中央团队承担的大量长尾能力开发，可以被拥有不同需求和领域知识的开发者分别投资、并行探索；一旦成功能力能够以插件形式被整个生态复用，一次研发投入就可以服务更多智能体，从而降低后来者的边际开发成本。
+
+**DSH 真正的长期下注，也许不是自己开发所有智能体能力，而是建设一个让整个生态用更低单位成本持续搜索、竞争、复用和生产能力的运行时。**
+
+</ThesisBlock>
+</section>
+
+<section id="research-boundary"><ResearchBoundary /></section>
+
+<h2 id="sources">参考来源</h2>
+
+1. [DeepSeek Harness — official repository](https://github.com/deepseek-ai/deepseek-harness/)：Everything is a Plugin、Developer Preview、社区插件发现机制。
+2. [DeepSeek Harness architecture](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/architecture.md)：Cordis、共享 Context、可替换的模型适配器、工具注册表、Session Log 与 Agent Loop。
+3. [Cordis tutorial](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/cordis-tutorial/index.md)：插件生命周期、服务依赖和面向 Harness 的扩展方式。
+4. [Gong & Li, 2023 — Designing boundary resources in digital government platforms](https://doi.org/10.1016/j.giq.2022.101777)：开放/封闭、稳定/灵活、generativity/control 的平台设计张力。
+5. [Understanding the interplay between boundary resources and governance practices](https://arxiv.org/abs/2108.09775)：generativity 本身不足以保证生态价值共创，仍需要治理机制。
+
+<section id="next-field-note"><NextFieldNote /></section>

@@ -1,0 +1,246 @@
+import { EvidenceNote } from "@/components/field-notes/Evidence"
+import { PullQuote, KillConditions, ThesisBlock, ResearchBoundary, NextFieldNote } from "@/components/field-notes/ResearchBlocks"
+import { CapabilityFlywheelDiagram } from "@/components/diagrams/CapabilityFlywheelDiagram"
+import { DistributedRDEconomicsDiagram } from "@/components/diagrams/DistributedRDEconomicsDiagram"
+
+<h2 id="update">Update｜This May Be More Than an Architectural Question</h2>
+
+The original claim of this essay was simple: **the long-term significance of DeepSeek Harness may extend beyond a Coding Agent. It may be an open Agent Runtime.** I still hold that view.
+
+But after continuing to observe the DSH ecosystem, I began to see that Everything is a Plugin may matter beyond the technical layer. It may also change **who pays the cost of capability R&D, who searches the space of unknown solutions, and how many people can reuse a capability once it has been created.**
+
+In a closed Agent company, support for browsers, databases, memory, search, deployment, and industry-specific workflows must largely be built by the internal team. An open plugin architecture can turn a significant portion of this long-tail exploration into parallel investment by developers who already have their own needs — with the resulting capabilities potentially reused by the wider ecosystem.
+
+<PullQuote>The Capability Flywheel may not mean only “more capabilities.” It may also mean an <strong>Innovation Flywheel + Cost Compression Flywheel</strong>.</PullQuote>
+
+<EvidenceNote language="en" type="hypothesis" title="The second layer of the thesis">
+  If an open Runtime can make candidate capabilities verifiable, persistent, and reusable across projects, it may create an innovation flywheel and a cost-compression flywheel at the same time. This is not an official DeepSeek roadmap. It is a strategic hypothesis that still requires evidence.
+</EvidenceNote>
+
+<h2 id="summary">Summary</h2>
+
+DeepSeek Harness is easiest to describe as “DeepSeek’s Claude Code.” That description is not entirely wrong. It is simply too small.
+
+The published architecture is unusually explicit. Cordis is the plugin framework under DSH; tools, model adapters, file access, the Agent loop, and other capabilities can be mounted as plugins into a shared Context. The official repository describes the design directly: **Everything is a Plugin.**
+
+<EvidenceNote language="en" type="official" title="Published architectural facts">
+  Model, Tool, Skill, Session, Sandbox, Storage, Loop, Scheduling, and UI capabilities live in a composable plugin system. DSH is still labeled a Developer Preview, and compatibility-breaking changes remain possible.
+</EvidenceNote>
+
+DeepSeek may therefore be opening more than a fixed Coding Product. A more consequential interpretation is that it is building **an open Agent Runtime.**
+
+The old model is straightforward: a core team produces capabilities, and users consume them. The emerging model could look different: the core team builds the substrate, the ecosystem co-produces edge capabilities, and users inherit an existing stock of work produced across that ecosystem.
+
+The decisive question is no longer “How many plugins does DSH have?” It is:
+
+<PullQuote>Can an open Runtime convert capability R&D from the internal cost of one company into distributed investment across an ecosystem?</PullQuote>
+
+<h2 id="why-coding">One｜Why Is Coding the First Stop?</h2>
+
+If the long-term ambition is larger than a Coding Agent, why begin with code?
+
+Because code is one of the best current environments for training an Agent to act. After modifying a program, the model can immediately run it, compile it, test it, read the error, revise the implementation, and verify again. This creates a natural loop:
+
+> **Action → Feedback → Verification → Revision**
+
+Compared with many real-world tasks, coding has a major advantage: outcomes are often machine-verifiable. Whether a program runs, whether tests pass, and whether the output satisfies a constraint often does not require another human to make a subjective judgment.
+
+Code therefore gives an Agent a **low-cost, high-density action–feedback environment.** That makes it a strong first proving ground for an Agent Runtime.
+
+<EvidenceNote language="en" type="inference" title="Why code comes first">
+  The claim that coding is the first proving ground for a broader Runtime is an interpretation based on feedback density and verifiability. It is not an official statement about DSH’s long-term product boundary.
+</EvidenceNote>
+
+But if DSH existed only to help programmers write code, much of its architecture would not need to be this open. The second step is where the larger possibility appears.
+
+<h2 id="everything-plugin">Two｜The Important Question Is Not Functionality, but Where Capability Lives</h2>
+
+The most important thing about DSH is not how many tools it has today. It is **where the capability lives.**
+
+Cordis allows plugins to contribute services, typed events, and reversible effects to a shared Context. The official architecture documentation goes further: the model adapter, tool registry, session log, and Agent loop itself can be replaced and recomposed.
+
+A conventional Agent is closer to: the product has already been defined, and the model operates inside it. DSH is closer to: the Runtime has been defined, while the concrete shape of the Agent remains composable.
+
+Developers do not necessarily have to wait for the core team to add a feature to the official product. If a stable capability seam exists, they can implement, replace, combine, and test it themselves.
+
+<PullQuote>Everything is a Plugin is not merely a statement that “plugins are supported.” It is an architectural decision to reduce how much edge innovation must pass through a central team.</PullQuote>
+
+<h2 id="creator">Three｜From Using Capabilities to Producing Capabilities</h2>
+
+At the time this article was formed, DSH exposed tools for inspecting a live Runtime, defining dynamic Cordis packages, and mounting those packages back into the current Agent. That turns the Harness from a static collection of tools into an object that can itself be inspected, modified, and optimized.
+
+The conventional chain is:
+
+> Human builds tools → Agent uses tools
+
+An open Runtime begins to approach:
+
+> Human / Agent identifies a missing capability → experiments with plugins → composes a new Runtime → Agent gains a new way to act
+
+The system moves from **Agent uses capabilities** toward **Agent participates in producing capabilities.**
+
+<EvidenceNote language="en" type="official" title="The confirmed boundary">
+  The official repository exposes mechanisms to define, run, stop, and roll back dynamic Cordis packages. This demonstrates that the Runtime can be experimentally modified. It does not demonstrate continual learning.
+</EvidenceNote>
+
+Writing a plugin is not the same as learning continuously. Durable capability accumulation still requires Verification, Persistence, Reuse, Selection, Rollback, and Security.
+
+The key change is narrower but important: **the Harness itself becomes an object of experimentation.**
+
+<h2 id="distributed-rd">Four｜Open Plugins Change Who Pays the R&D Cost</h2>
+
+Imagine a closed Agent company that wants to support Browser, Database, Memory, GitHub, DevOps, Visualization, and hundreds of industry workflows. If everything is developed internally, every additional capability creates another cycle of design, engineering, testing, and maintenance for the core team.
+
+An open Runtime can take a different path. Developer A needs PostgreSQL. Developer B needs a Browser. Developer C needs Kubernetes. Developer D needs a specialized domain tool. They already have local demand, so each may invest time, tokens, engineering effort, and domain knowledge to solve a problem that matters to them.
+
+If those solutions can become reusable plugins, **a private R&D investment begins to take on the character of a shared ecosystem asset.**
+
+<DistributedRDEconomicsDiagram language="en" />
+
+Research on digital platforms has long treated third-party complementors as a source of platform innovation. Public studies also show that open boundary resources can enable complementary innovation — while warning that generativity and governance must develop together.
+
+<EvidenceNote language="en" type="observed" title="Evidence from platform ecosystems">
+  Existing platform research supports the general mechanism that open interfaces can expand third-party complementary innovation. It does not prove that DSH has already created a high-quality capability market.
+</EvidenceNote>
+
+DSH has one unusual property: the complement being produced is itself an Agent capability. It may therefore convert a large set of long-tail capabilities that a core team would otherwise develop serially into **ecosystem-wide parallel R&D.**
+
+This is not the claim that “DeepSeek gets developers to work for free.” Developers are first solving their own problems, and their plugins can serve their own projects. The more precise economic structure is this:
+
+<PullQuote>A central organization no longer has to pay for the entire search space by itself.</PullQuote>
+
+The center can focus on Runtime, core protocol, models, sandboxing, and infrastructure. Developers with local knowledge and actual demand invest in searching for concrete solutions at the edge. This is **Distributed R&D Leverage.**
+
+<h2 id="cost-compression">Five｜Reuse Can Make the Next Capability Cheaper</h2>
+
+Suppose there is no plugin ecosystem and one hundred developers need browser automation. In the extreme case, all one hundred implement it independently. If a mature Browser Plugin already exists, the first developer bears much of the development cost; later developers mainly bear integration and verification costs.
+
+As Browser, Memory, Database, Search, Deployment, and Observability accumulate into a reusable capability stock, a new developer no longer begins at zero. They begin with what the ecosystem has already built.
+
+<CapabilityFlywheelDiagram language="en" />
+
+This is the **Developer Cost Compression Flywheel.** It does not mean that everyone evenly shares the cost. The stronger claim is more precise: reuse increases the number of times an R&D investment can be applied, and may therefore reduce the marginal cost of building the next Agent.
+
+The more mature the plugin stock becomes, the less often new developers need to rebuild the same wheel. A lower entry cost can then attract more developers, who contribute additional long-tail capabilities. Supply growth and lower development cost begin to reinforce each other.
+
+<h2 id="ai-amplifier">Six｜An AI Platform Has an Amplifier Traditional Software Ecosystems Lack</h2>
+
+There is another loop: AI can help create the plugins themselves.
+
+In theory, the sequence can become:
+
+> Stronger model → easier plugin development → more capability experiments per developer → more and better plugins → more useful Harness → more real Agent workloads
+
+The intelligence provided by the platform can reduce the cost of creating complements for the platform.
+
+A traditional software platform gives developers an IDE to write applications. An AI Agent platform can go further: **developers use the AI inside the platform to help create new capabilities for that platform.**
+
+<EvidenceNote language="en" type="hypothesis" title="AI-native generativity">
+  The claim that stronger models will systematically reduce plugin production cost and accelerate ecosystem generativity still requires evidence on plugin development time, maintenance cost, and cross-version survival.
+</EvidenceNote>
+
+<h2 id="api-loop">Seven｜Can DeepSeek Capture API Value From the Ecosystem?</h2>
+
+Not automatically.
+
+The Model is also replaceable within the DSH plugin system. Developers can choose another model. The creation or use of a DSH plugin therefore does **not** necessarily produce DeepSeek API revenue.
+
+But if a meaningful share of DSH workloads uses the DeepSeek API, then developing, debugging, and running plugins all create model calls. Because the API is priced by input and output tokens, those workloads can become revenue when they actually select a DeepSeek model.
+
+<EvidenceNote language="en" type="inference" title="A conditional economic loop">
+  Open interfaces can reduce the long-tail capability cost that DeepSeek itself must bear. Ecosystem growth creates API value return only when workloads choose DeepSeek models in practice.
+</EvidenceNote>
+
+The defensible claim is not “more open-source plugins necessarily mean more profit.” Cost externalization and API return are separate edges. The first comes from an open interface; the second depends on model competitiveness and real user choice.
+
+<h2 id="governance">Eight｜More Plugins Are Not Automatically Better</h2>
+
+There is a dangerous overreach at this point: let everyone build, allow plugin count to grow, and the best solution will naturally win.
+
+Reality is harder. Platform research has repeatedly found that openness and generativity are not sufficient for high-quality value co-creation. Platforms still require governance, boundary resources, selection, and control mechanisms. Otherwise, a complementor ecosystem can create coordination problems and quality failure.
+
+The risk is sharper in an Agent plugin ecosystem. There may be thirty Browser plugins, twenty Memory plugins, and fifteen Routers. The useful question is not which one markets itself best. It is which one is more stable, token-efficient, general across tasks, safe with permissions, robust to context, and effective across models.
+
+A healthy ecosystem therefore requires:
+
+> **Competition + Evaluation + Selection**
+
+Developers generate candidates. Real tasks expose failures. Evaluation kills the Hero Run. The mechanisms that deserve to survive are the ones that continue to work under reasonable conditions.
+
+<h2 id="two-loops">Nine｜Two Feedback Loops Now Appear</h2>
+
+The argument can now be compressed into two loops.
+
+**Loop A｜Platform Innovation Flywheel**
+
+> Core Runtime → Open capability interface → Developers invest in missing capabilities → Thousands of experiments happen in parallel → Better capabilities emerge → DSH becomes stronger → More developers participate
+
+The central benefit is wider search — without requiring the central team to pay every search cost.
+
+**Loop B｜Developer Cost Compression Flywheel**
+
+> More plugins → More mature capabilities can be reused → Marginal cost of a new Agent falls → More developers can build Agents → More long-tail needs are solved → More plugins
+
+The central benefit is less duplicated R&D.
+
+The two loops connect. Successful openness grows the capability stock. A larger capability stock makes new development cheaper. Cheaper development expands distributed search.
+
+The economic structure of the Capability Flywheel can therefore be rewritten as:
+
+> **Distributed Innovation × Capability Reuse × Cost Compression**
+
+<h2 id="core-model">Core Model｜From Coding Agent to Distributed Capability Production</h2>
+
+> **Coding Agent**
+>
+> ↓
+>
+> **Open Agent Runtime** · Everything is a Plugin
+>
+> ↓
+>
+> **Distributed R&D Search**
+>
+> ↓
+>
+> Platform innovation loop × Developer cost loop
+>
+> ↓
+>
+> **Real-task competition → Evaluation → Selection**
+>
+> ↓
+>
+> **Better, reusable capabilities**
+
+If those workloads also choose DeepSeek models, a third loop may emerge: DSH Growth → API Usage → Model / Infrastructure Resources → Stronger Model → Cheaper Capability Creation. But this loop is **conditional**, not inevitable.
+
+<section id="kill-conditions"><KillConditions language="en" /></section>
+
+<section id="final-thesis">
+<ThesisBlock language="en">
+
+The most important question about DeepSeek Harness is not whether it has more features than Claude Code or Codex today.
+
+What is different is the decision to place Model, Tool, Skill, Session, Sandbox, Storage, Loop, UI, and other capabilities inside a composable open Runtime — allowing developers to participate directly in edge capability innovation without modifying the Harness body.
+
+That decision may change not only the technical architecture, but the economics of Agent R&D. A large set of long-tail capabilities that would otherwise be funded by one central team can be explored in parallel by developers with different needs and different domain knowledge. If successful capabilities can be reused as plugins across the ecosystem, one R&D investment can serve more Agents and reduce the marginal development cost for those who come later.
+
+**The long-term bet behind DSH may not be to build every Agent capability inside DeepSeek. It may be to build a Runtime in which an entire ecosystem can search, compete, reuse, and produce capabilities at progressively lower unit cost.**
+
+If that structure works, DeepSeek will not merely have an open Coding Agent. It will have a distributed R&D system in which outside developers share the work of capability exploration while the core team concentrates on the substrate.
+
+</ThesisBlock>
+</section>
+
+<section id="research-boundary"><ResearchBoundary language="en" /></section>
+
+<h2 id="sources">Sources</h2>
+
+1. [DeepSeek Harness — official repository](https://github.com/deepseek-ai/deepseek-harness/): Everything is a Plugin, Developer Preview status, and plugin discoverability.
+2. [DeepSeek Harness architecture](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/architecture.md): Cordis, the shared Context, and replaceable model adapters, tool registries, session logs, and Agent loops.
+3. [Cordis tutorial](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/cordis-tutorial/index.md): plugin lifecycle, service dependencies, and Harness extension mechanisms.
+4. [Gong & Li, 2023 — Designing boundary resources in digital government platforms](https://doi.org/10.1016/j.giq.2022.101777): the tensions between openness and closure, stability and flexibility, and generativity and control.
+5. [Understanding the interplay between boundary resources and governance practices](https://arxiv.org/abs/2108.09775): why generativity alone is insufficient for ecosystem value co-creation without governance.
+
+<section id="next-field-note"><NextFieldNote language="en" /></section>

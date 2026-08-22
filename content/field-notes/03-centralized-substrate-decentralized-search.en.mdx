@@ -1,0 +1,192 @@
+import { EvidenceNote } from "@/components/field-notes/Evidence"
+import { OrganizationRuntimeDiagram, CapabilityReliabilityDiagram, DualFlywheelDiagram, FourGatesDiagram } from "@/components/diagrams/LearningSystemDiagrams"
+import { VerificationBottleneck, HarnessMonoculture, AbsorptionBottleneck, EconomicCheck, ZeroRetuningDelta, LearningCycleTime, LearningSystemKillConditions, PredictionLedger, LearningSystemThesis, LearningSystemBoundary, SeriesComplete, LearningSystemNavigation, LearningPullQuote } from "@/components/field-notes/LearningSystemBlocks"
+
+<h2 id="evidence-note">Evidence Note｜What does 91→99 actually establish?</h2>
+
+A small event after the release of DeepSeek Harness may be more revealing than another model leaderboard.
+
+On a frozen Project2 V4.1b engineering task, the same production V4 Pro scored **91 / 96 / 91 / 93** across four OpenCode runs. DSH Standard scored **91**; a community configuration labeled PTC scored **92**; Minimal scored **99 / 96**. The community then built Anchored Standard—using a Minimal-aligned first-turn interface to establish the trajectory before restoring a broader tool surface—and obtained **98 / 99**.
+
+These numbers do not show that V4 Pro is generally equivalent to any other frontier model. They are community reproductions on a frozen engineering task, not official DeepSeek benchmark scores. They should be read as a **Harness Sensitivity Case Study**, not a General Capability Ranking.
+
+<EvidenceNote language="en" type="observed" title="Community / exploratory evidence — not an official benchmark">
+  A formal experiment would still need to freeze and publish the task, repository commit, harness version, system prompt, tool schema, reasoning effort, temperature, top_p, scorer, run count, raw trajectories, multiple repositories, and multiple seeds. The argument here does not require “99” to be a general ranking. It requires only the narrower observation that reasonable harness changes can materially alter realized capability in the same model.
+</EvidenceNote>
+
+The V4 technical report states that its code-agent evaluations used a deliberately minimal internal harness with only bash and file editing. Official V4 Pro release materials also disclose the Minimal Harness and evaluation settings such as reasoning effort, top_p, and temperature. Harness is therefore not decoration outside the measurement system. It is part of that system.
+
+<LearningPullQuote>The realized agent capability of the same model can change dramatically with the harness around it.</LearningPullQuote>
+
+One terminology correction matters. The current official DSH repository uses **Standard / Code / Minimal / Creator**. This article retains “PTC” only as the label used by the community reproduction; it does not present PTC as the current official preset name.
+
+<h2 id="organization-runtime">1. From organization to runtime: a structural-mirroring hypothesis</h2>
+
+Decentralized search did not begin when DSH became open source. DeepSeek's public description of its research culture has long suggested a bottom-up allocation pattern: researchers retain substantial freedom to choose and explore problems; when a direction produces a meaningful signal, the organization concentrates resources behind it.
+
+The important feature is not simply “flat management.” It is an allocation rule: do not require the center to predict every answer in advance; let hypotheses compete; amplify winners after signal appears.
+
+> **Distributed Hypothesis Generation**
+>
+> + **Centralized Scaling**
+
+DSH now presents a structurally similar technical arrangement. Its official repository describes Cordis as the underlying plugin framework. Model adapters, tool registries, session logs, and the agent loop itself are replaceable through configuration; profiles and bundles compose the runtime as a plugin tree. External developers and agents can therefore explore tools, skills, prompts, memory, workflows, and loops in parallel while the substrate supplies protocols, traceability, permissions, and execution boundaries.
+
+<OrganizationRuntimeDiagram language="en" />
+
+<EvidenceNote language="en" type="inference" title="Organizational Path-Dependence / Conway-style Mirroring">
+  One testable interpretation is that DeepSeek's internal pattern—autonomous exploration → signal → centralized resource amplification—resembles DSH's open plugin search → real-task signal → verification → reuse or selective absorption. That may reflect organizational path-dependence or Conway-style mirroring. Structural similarity does not prove direct causal intent; it is not evidence that DSH was consciously designed from a management doctrine.
+</EvidenceNote>
+
+The thesis is therefore not “open source is good,” nor “more plugins are automatically better.” It is:
+
+> **CENTRALIZED SUBSTRATE**
+>
+> + **DECENTRALIZED SEARCH**
+>
+> + **INDEPENDENT VERIFICATION**
+>
+> + **SELECTIVE ABSORPTION**
+
+Model, compute, training, RL, sandboxing, runtime, and core protocols are expensive, scale-dependent, and coordination-heavy; they are built centrally. Prompt, tool, plugin, workflow, memory, evaluation, and harness strategy live in large, locally informed, unresolved search spaces; internal researchers, external developers, and agents can explore them in parallel.
+
+<h2 id="capability-reliability">2. 91→99: the problem may be Capability Reliability, not ceiling</h2>
+
+Once Minimal reached 99, the original explanation—“production Pro simply fails to deliver”—became less satisfying. Minimal more closely resembles the tool distribution used in the official code-agent evaluation. But Anchored Standard prevents the easy conclusion that fewer tools are always better: when the trajectory begins under a Minimal-like first turn and later regains a broader tool surface, performance can remain near the observed ceiling.
+
+A more useful interpretation is that V4 Pro may already have a high Capability Ceiling while its realization remains unreliable.
+
+The issue is not simply that the model cannot do the work. It is that:
+
+> **The model can do it, but does not reliably enter its strongest strategy region.**
+
+<CapabilityReliabilityDiagram language="en" />
+
+A valuable product improvement is not always 99 → 100. It may be compressing 91 / 99 / 92 / 98 into 96 / 99 / 97 / 98: reducing variance between the capability ceiling and realized capability.
+
+Independent research increasingly supports the problem statement. Agentic Harness Engineering modifies and validates the harness from failure trajectories without changing base-model weights; after ten iterations, Terminal-Bench 2 pass@1 rose from 69.7% to 77.0%, and the frozen harness transferred gains to other model families. Self-Harness asks models to perform Weakness Mining → Harness Proposal → Regression Testing and reports higher held-out pass rates across three model families.
+
+One Recipe, Many Harnesses provides a sharper interpretation: a harness can narrow the gap between what a policy **can do** and what it **does**. It acts as a **Capability Realization Layer**, not a machine that creates unlimited intelligence from nothing.
+
+<EvidenceNote language="en" type="observed" title="Directional support is not proof of a DeepSeek flywheel">
+  AHE, Self-Harness, and One Recipe, Many Harnesses support the claim that harnesses change capability realization and that some mechanisms transfer. They do not show that DeepSeek has absorbed community discoveries into model training, or that a nonlinear dual flywheel already exists.
+</EvidenceNote>
+
+<h2 id="trajectory-training">3. The other half of the substrate: Trajectory → Training</h2>
+
+Harness evolution addresses how to learn from execution failure and modify the operating system around a model. DeepSeek's public V4 report documents the other half: domain-specialist training, SFT, GRPO RL, on-policy distillation, and DSec infrastructure for large-scale agent execution.
+
+DSec records globally ordered trajectory logs for sandbox execution and emphasizes provenance, recovery, and deterministic replay. V4 is also used by DeepSeek researchers and engineers for day-to-day agentic coding. Public evidence therefore establishes two pieces: real internal agent work exists, and infrastructure exists to make execution trajectories replayable research objects.
+
+In principle, one failure can become:
+
+> Reproducible trajectory → Failure classification → Eval case → Reward / training signal → Next-model improvement
+
+The two lines can therefore meet: harnesses discover failure in trajectories; training systems turn verified mechanisms back into learning signal.
+
+<EvidenceNote language="en" type="hypothesis" title="The critical data boundary">
+  “Can meet” does not mean “already meets.” There is no public evidence that trajectories from public DSH community users train a future DeepSeek model. Consent, privacy, governance, and security would constrain any such return path. This note never treats Community DSH trajectory → V5 training as fact.
+</EvidenceNote>
+
+<h2 id="dual-flywheel">4. Model × Harness × Ecosystem: the nonlinear dual flywheel</h2>
+
+If stronger models help developers and researchers tackle harder work, the resulting success and failure trajectories can expose the next layer of evaluation and training problems. If an open runtime brings more developers and agents into the search over plugins, workflows, and recovery mechanisms, reuse may lower the marginal cost of the next search.
+
+The two loops require a control plane between them: **Independent Verification + Selective Absorption**.
+
+<DualFlywheelDiagram language="en" />
+
+Models give the ecosystem intelligence. The ecosystem gives models experience. Reuse lowers the cost of the next search. Verification turns experience into knowledge.
+
+That is the demanding meaning of “nonlinear.” It is not growth in participation alone. Each round must raise the ceiling of the next search, reduce its cost, or shorten the path from failure to system improvement. Bidirectional compounding exists only if those quantities improve repeatedly.
+
+<h2 id="verification">5. The new bottleneck may be verification, not search</h2>
+
+Open search is valuable not only because it can discover good answers sooner. It can also make wrong explanations die sooner. Many participants can run Hypothesis → Experiment → Elimination → Update in parallel.
+
+But more developers do not automatically produce more knowledge. A hundred thousand harness experiments can generate more hero runs, benchmark-specific weapons, irreproducible prompts, and elegant but false stories.
+
+<VerificationBottleneck language="en" />
+
+Rethinking the Evaluation of Harness Evolution for Agents gives the direct warning. If evolution repeatedly searches with task feedback on a public benchmark and then reports final results on the same benchmark, measured gains can include extra test-time search and show limited held-out generalization.
+
+Any harness change proposed for broad adoption must answer: can it be reproduced? Does it survive held-out tasks? Does it transfer across repositories, languages, and model families? The valuable outcome is not “one run reached 99.” It is that the mechanism continues to work under a reasonable change of environment.
+
+<h2 id="monoculture">6. Harness Monoculture: the most dangerous harness may be the successful one</h2>
+
+Suppose one harness wins widespread adoption. More users produce more tasks and data around it; more evaluations target it; models become increasingly adapted to it; it scores higher and attracts more usage.
+
+<HarnessMonoculture language="en" />
+
+If Minimal reaches 99, the healthy research response is not to use Minimal forever. It is to perturb the prompt, tool schema, tool count, context policy, memory, first turn, and recovery strategy; identify the causal mechanisms; and train those mechanisms back into the model.
+
+Otherwise the harness becomes a permanent crutch rather than an experimental instrument that exposes what the model should learn next.
+
+<h2 id="absorption">7. The Central Absorption Bottleneck: absorb mechanisms, not features</h2>
+
+If the community produces one hundred useful discoveries each month but the core team can understand, validate, and absorb only three, the loop remains blocked. Yet merging every browser, memory, router, workflow, and tool into the core would turn the runtime into an unmaintainable monolith.
+
+<AbsorptionBottleneck language="en" />
+
+Because external researchers normally cannot see whether a specific community trajectory entered internal post-training, “absorption” must be split into two layers.
+
+**Observable Absorption:** does a community-discovered failure mode appear in official DSH source, documentation, evaluation protocol, changelog, default preset, or technical report?
+
+**Inferred Model Absorption:** freeze a perturbation suite and rerun it on the next model generation. If the same harness and prompt become systematically more robust to tool count, first-turn schema, and context strategy, the core may have learned the mechanism—even though this does not identify the training-data source.
+
+<h2 id="four-gates">8. Four gates for deciding whether the thesis survives</h2>
+
+A strategic hypothesis becomes useless if every possible future can be explained as confirmation. For the next 6–18 months, or one to two major model generations, only four tests matter.
+
+<FourGatesDiagram language="en" />
+
+**Gate 01 — Transfer:** can a harness discovery leave its birthplace? Which mechanisms travel from Repo A to Repo B, Python to TypeScript / C++ / DevOps, V4 Pro to Flash, or DeepSeek to another model family—and which require local adaptation?
+
+**Gate 02 — Absorption:** does the core learn? Track Observable Absorption and Inferred Model Absorption separately instead of asking outsiders to guess private training data.
+
+**Gate 03 — Model Dividend:** when a successor model arrives, do existing plugins, skills, and workflows improve before they are changed?
+
+<ZeroRetuningDelta language="en" />
+
+The Zero-Retuning Model Dividend is strong only when the frozen ecosystem improves without editing. Adaptation Cost is the companion metric: if every new model requires two weeks of prompt and tool retuning, ecosystem compounding is weaker than it appears.
+
+**Gate 04 — Learning Cycle Time:** how long does a real failure take to move through location, reproduction, verification, mechanism extraction, absorption, and a released fix?
+
+<h2 id="economic-check">Economic Check｜Is search actually becoming cheaper?</h2>
+
+The Four Gates test whether the system learns. The Economic Check asks a separate question: is search becoming more efficient? It is not a fifth learning gate.
+
+<EconomicCheck language="en" />
+
+Stars show attention. Plugin count shows activity. Social-media volume shows discussion. None of them shows that the system learns. The harder evidence is declining total cost per validated capability, rising reuse, and falling marginal integration cost.
+
+<h2 id="learning-cycle">Learning Cycle Time｜How quickly does one failure become system improvement?</h2>
+
+<LearningCycleTime language="en" />
+
+The sequence from 30 days to 48 hours illustrates how the metric could contract. It is not observed DeepSeek data. A nonlinear learning flywheel deserves the name only if this cycle repeatedly becomes shorter.
+
+<LearningPullQuote>The decisive comparison is not who produced one more 99 today, but who needs less time to turn one failure into the next systematic improvement.</LearningPullQuote>
+
+<section id="kill-conditions"><LearningSystemKillConditions language="en" /></section>
+
+<section id="prediction-ledger"><PredictionLedger language="en" /></section>
+
+<section id="final-thesis"><LearningSystemThesis language="en" /></section>
+
+<section id="research-boundary"><LearningSystemBoundary language="en" /></section>
+
+<h2 id="sources">Sources</h2>
+
+1. [DeepSeek-V4 Technical Report](https://arxiv.org/abs/2606.19348): V4 architecture, post-training, code-agent evaluation, DSec sandbox and trajectory infrastructure, and internal agentic-coding use.
+2. [DeepSeek Harness official repository](https://github.com/deepseek-ai/deepseek-harness): Everything is a Plugin, developer-preview status, and the open-source project boundary.
+3. [DeepSeek Harness Architecture](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/architecture.md): Cordis, replaceable plugins, profiles, bundles, and runtime composition.
+4. [Cordis Tutorial](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/cordis-tutorial/index.md): the official explanation of plugin capabilities and shared context.
+5. [Agentic Harness Engineering](https://arxiv.org/abs/2604.25850): automatic harness evolution, cross-family transfer, and ablations.
+6. [Self-Harness](https://arxiv.org/abs/2606.09498): Weakness Mining, Harness Proposal, and Regression Testing.
+7. [One Recipe, Many Harnesses](https://arxiv.org/abs/2608.10178): capability realization, transferable abstractions, and ecosystem-specific adaptation.
+8. [Rethinking the Evaluation of Harness Evolution for Agents](https://arxiv.org/abs/2607.12227): matched search budgets, held-out generalization, and evaluation-overfitting risk.
+
+<SeriesComplete language="en" />
+
+<LearningSystemNavigation language="en" />

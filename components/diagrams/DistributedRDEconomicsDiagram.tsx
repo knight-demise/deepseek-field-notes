@@ -1,0 +1,12 @@
+export function DistributedRDEconomicsDiagram({ language = "zh" }: { language?: "zh" | "en" }) {
+  const isEnglish = language === "en";
+  const branches = ["POSTGRESQL","BROWSER","KUBERNETES","MEMORY","DOMAIN TOOL"];
+  return <figure className="technical-figure"><div className="technical-figure__label"><span>{isEnglish ? "FIGURE 03" : "图 03 · FIGURE 03"}</span><span>{isEnglish ? "DISTRIBUTED R&D ECONOMICS" : "分布式研发经济学 · DISTRIBUTED R&D ECONOMICS"}</span></div><svg className="rd-svg" viewBox="0 0 760 470" role="img" aria-label="中心团队建设运行时，开发者并行投入需求并形成可复用能力库存">
+    <defs><marker id="arrowRD" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#6fc9f2"/></marker></defs>
+    <g className="rd-core"><rect x="40" y="170" width="190" height="130" rx="8"/><text x="65" y="204">{isEnglish ? "CENTRAL TEAM" : "中心团队 · CENTRAL TEAM"}</text><text x="65" y="238" className="rd-title">{isEnglish ? "RUNTIME" : "运行时"}</text><text x="65" y="262" className="rd-title">{isEnglish ? "PROTOCOL" : "协议"}</text><text x="65" y="283" className="rd-small">{isEnglish ? "MODEL · SANDBOX · CORE" : "模型 · 沙箱 · 核心"}</text></g>
+    <path d="M230 235H330" stroke="#6fc9f2" strokeOpacity=".7" markerEnd="url(#arrowRD)"/>
+    <g className="rd-interface"><rect x="330" y="82" width="132" height="306" rx="66"/><text x="396" y="214" textAnchor="middle">{isEnglish ? "OPEN" : "开放"}</text><text x="396" y="239" textAnchor="middle">{isEnglish ? "CAPABILITY" : "能力"}</text><text x="396" y="264" textAnchor="middle">{isEnglish ? "INTERFACE" : "接口"}</text>{!isEnglish && <text x="396" y="287" textAnchor="middle" className="diagram-aux">OPEN INTERFACE</text>}</g>
+    {branches.map((label,i)=>{const y=72+i*82;return <g key={label} className="rd-branch"><path d={`M462 235 C520 235 500 ${y} 548 ${y}`} fill="none" stroke="#47758e" markerEnd="url(#arrowRD)"/><rect x="552" y={y-24} width="170" height="48" rx="5"/><text x="637" y={y+4} textAnchor="middle">{label}</text></g>})}
+    <text x="556" y="440" className="rd-foot">{isEnglish ? "LOCAL NEED → PRIVATE INVESTMENT → REUSABLE CAPABILITY" : "本地需求 → 个体投入 → 可复用能力"}</text>{!isEnglish && <text x="556" y="456" className="rd-foot diagram-aux">LOCAL NEED → PRIVATE INVESTMENT → REUSABLE CAPABILITY</text>}
+  </svg><figcaption>{isEnglish ? "A central organization no longer has to pay for the entire unknown search space alone." : "一个中心组织不再需要独自为整个未知搜索空间买单。"}</figcaption></figure>;
+}

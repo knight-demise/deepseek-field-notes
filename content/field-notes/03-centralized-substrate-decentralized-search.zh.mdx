@@ -1,0 +1,192 @@
+import { EvidenceNote } from "@/components/field-notes/Evidence"
+import { OrganizationRuntimeDiagram, CapabilityReliabilityDiagram, DualFlywheelDiagram, FourGatesDiagram } from "@/components/diagrams/LearningSystemDiagrams"
+import { VerificationBottleneck, HarnessMonoculture, AbsorptionBottleneck, EconomicCheck, ZeroRetuningDelta, LearningCycleTime, LearningSystemKillConditions, PredictionLedger, LearningSystemThesis, LearningSystemBoundary, SeriesComplete, LearningSystemNavigation, LearningPullQuote } from "@/components/field-notes/LearningSystemBlocks"
+
+<h2 id="evidence-note">证据说明｜91→99 到底能证明什么？</h2>
+
+DeepSeek Harness（智能体运行框架）发布后发生的一件小事，也许比一次模型榜单更值得研究。
+
+在冻结的 Project2 V4.1b 工程任务中，同一正式版 V4 Pro 经 OpenCode 四次运行得到 **91 / 96 / 91 / 93**；DSH Standard 得到 **91**，社区标记为 PTC 的配置得到 **92**，Minimal 得到 **99 / 96**。随后构造的 Anchored Standard——先用与 Minimal 对齐的首轮接口建立智能体执行轨迹（Trajectory），再恢复较完整工具面——得到 **98 / 99**。
+
+这些数字不能证明 V4 Pro 在通用能力上等价于任何其他前沿模型。它们来自社区在冻结工程任务上的复现记录，不是 DeepSeek 官方通用榜单，应该被视为**Harness 敏感性案例研究**，而不是通用能力排名。
+
+<EvidenceNote type="observed" title="社区 / 探索性证据，不是官方基准测试">
+  要把它升级为正式实验，仍需公开并冻结任务、仓库提交、Harness 版本、系统提示词、工具模式、推理强度、Temperature、top_p、评分器、运行次数与原始执行轨迹，并扩展到多个仓库与随机种子。本文依赖的不是“99 是通用排名”，而是更弱、也更重要的观察：同一模型在合理不同的 Harness 条件下，可能出现显著的能力兑现差异。
+</EvidenceNote>
+
+V4 技术报告明确说明，其编程智能体评测采用内部极简 Harness，只提供 bash 与文件编辑。官方 V4 Pro 发布材料也披露了 Minimal Harness、最大推理强度、top_p 与 temperature 等评测条件。因此 Harness 不是模型能力测量之外的装饰变量；它本来就在测量系统里面。
+
+<LearningPullQuote>同一颗模型的实际智能体能力，可以因为 Harness 而发生巨大变化。</LearningPullQuote>
+
+但这里也要修正一处术语：当前 DSH 官方仓库使用 **Standard / Code / Minimal / Creator**。本文中的 PTC 只指社区复现实验当时使用的配置标签，不把它写成当前官方 Preset 名称。
+
+<h2 id="organization-runtime">一、从组织到 Runtime（运行时）：一种结构映射假说</h2>
+
+“分布式搜索”并不是因为 DSH 开源才突然出现。DeepSeek 对外呈现的研发方式长期带有一种自下而上的结构：研究者拥有较大的问题选择与探索空间，当某个方向出现有效信号以后，组织再集中资源放大。
+
+关键不是一句“扁平管理”，而是一种资源分配逻辑：不要让中央提前猜完所有答案；让大量假说先竞争；信号出现以后，再集中力量扩展赢家。
+
+> **Distributed Hypothesis Generation**
+>
+> + **Centralized Scaling**
+
+DSH 又出现了相似的技术结构。官方仓库把 Cordis 描述为底层插件框架，模型适配器、工具注册、会话日志与智能体循环都可以通过配置替换；配置与组合包进一步把运行时组织成可组合的插件树。外部开发者和智能体因此可以并行探索工具、技能、提示词、记忆、工作流与智能体循环，而稳定底座仍提供协议、日志、权限与执行边界。
+
+<OrganizationRuntimeDiagram />
+
+<EvidenceNote type="inference" title="组织路径依赖 / 康威定律式映射">
+  一种值得验证的解释是：DeepSeek 内部“自主探索 → 信号 → 集中资源放大”的研发路径，与 DSH 的“开放插件搜索 → 真实任务信号 → 验证 → 复用 / 选择性吸纳”之间存在组织路径依赖或康威定律式映射。但结构相似不证明直接因果意图，不能写成“DeepSeek 就是按管理制度设计 DSH”。
+</EvidenceNote>
+
+这篇文章的核心因此不是“开源很好”，也不是“插件越多越强”，而是：
+
+> **集中式底座（CENTRALIZED SUBSTRATE）**
+>
+> + **分布式搜索（DECENTRALIZED SEARCH）**
+>
+> + **独立验证（INDEPENDENT VERIFICATION）**
+>
+> + **选择性吸纳（SELECTIVE ABSORPTION）**
+
+昂贵、依赖规模、需要统一协调的模型、算力、训练、RL、沙箱、运行时与核心协议集中建设；答案未知、解空间巨大、依赖局部知识的提示词、工具、插件、工作流、记忆、评估与 Harness 策略，则让内部研究员、外部开发者和智能体高度并行搜索。
+
+<h2 id="capability-reliability">二、91→99：问题可能不是能力上限，而是能力兑现可靠性</h2>
+
+Minimal 得到 99 以后，最初“正式版 Pro 能力没有兑现”的解释开始变化。Minimal 的工具暴露方式更接近官方 Code Agent 评测分布，但 Anchored Standard 又说明结论不能简化成“工具越少越强”：如果先用接近 Minimal 的首轮接口建立轨迹，再恢复更完整工具面，表现仍可保持在高位。
+
+更值得研究的解释是：V4 Pro 的能力上限可能已经很高；薄弱之处是能力兑现的可靠性。
+
+不是简单的“模型不会”，而是：
+
+> **模型会，但不总能稳定进入自己最强的策略区域。**
+
+<CapabilityReliabilityDiagram />
+
+真正有产品价值的进步，有时不是 99 → 100，而是把 91 / 99 / 92 / 98 压缩成 96 / 99 / 97 / 98——缩小能力上限与实际兑现之间的方差。
+
+越来越多独立研究开始支持这个问题设定。Agentic Harness Engineering 在不改基础模型权重的情况下，利用失败 trajectory 自动修改并验证 Harness；十轮后 Terminal-Bench 2 pass@1 从 69.7% 升至 77.0%，冻结后的 Harness 在其他模型家族上仍带来跨模型收益。Self-Harness 则让模型执行 Weakness Mining → Harness Proposal → Regression Testing，并在三个模型家族上提高 held-out pass rate。
+
+One Recipe, Many Harnesses 给出了更精确的解释：Harness 的作用之一，是缩小策略“能够做什么”与“实际做出了什么”之间的差距；它更像**能力兑现层**，而不是凭空制造无限新智能。
+
+<EvidenceNote type="observed" title="独立研究提供方向支持，不等于证明 DeepSeek 双飞轮">
+  AHE、Self-Harness 与 One Recipe, Many Harnesses 支持“Harness 可以改变能力兑现，并有些机制能迁移”的判断。它们不证明 DeepSeek 已经把社区发现吸收进模型训练，也不证明非线性双飞轮已经闭合。
+</EvidenceNote>
+
+<h2 id="trajectory-training">三、另一半基础设施：执行轨迹 → 训练</h2>
+
+Harness 演化解决的是如何从执行轨迹中发现失败并改造运行系统。DeepSeek V4 的公开技术报告则展示了另一半：专项领域专家训练、SFT、GRPO RL、在策略蒸馏，以及面向大规模智能体执行的 DSec 基础设施。
+
+DSec 为沙箱运行保存全局有序执行轨迹日志，强调来源追踪、恢复与确定性回放。V4 也已经进入 DeepSeek 内部研发人员的智能体编程工作。公开事实因此支持两件事：真实智能体工作存在；把执行轨迹变成可回放研究对象的基础设施存在。
+
+理论上，一次失败可以经过：
+
+> 可复现轨迹 → 失败分类 → 评估案例 → 奖励 / 训练信号 → 下一轮模型改进
+
+于是两条线第一次可以接起来：Harness 从执行轨迹中发现失败；训练系统把被验证的机制重新变成学习信号。
+
+<EvidenceNote type="hypothesis" title="最重要的数据边界">
+  “可以接起来”不等于“已经接起来”。目前没有公开证据证明公共 DSH 社区用户的执行轨迹被用于未来 DeepSeek 模型训练。隐私、授权、治理和安全也会限制任何回流。本文绝不把“社区 DSH 执行轨迹 → V5 训练”写成事实。
+</EvidenceNote>
+
+<h2 id="dual-flywheel">四、Model × Harness × Ecosystem：非线性双飞轮</h2>
+
+如果更强模型帮助开发者和研究员处理更难任务，真实成功与失败轨迹就会暴露下一层评估与训练问题；如果开放运行时吸引更多开发者与智能体搜索插件、工作流和恢复模式，能力复用又可能降低下一次搜索的边际成本。
+
+但两条飞轮之间必须有一个控制平面：**独立验证 + 选择性吸纳**。
+
+<DualFlywheelDiagram />
+
+模型给生态加智力。生态给模型加经验。复用降低下一次搜索成本。验证把经验筛成知识。
+
+这也是“非线性”的严格含义：不是参与者数量增长，而是每一轮改进同时扩大下一轮搜索上限、降低搜索成本，或缩短失败到系统改进的时间。只有这些量反复改善，模型与生态的双向复利才可能成立。
+
+<h2 id="verification">五、新瓶颈可能是验证，而不是搜索</h2>
+
+开放搜索最有价值的一面，不只是更快找到正确答案，也是更快让错误解释死亡。大量参与者可以并行提出假说、执行实验、完成淘汰，再更新解释。
+
+然而更多开发者不等于更多知识。十万人同时做 Harness 实验，完全可能得到更多偶然成功、基准测试专用能力、不可复现提示词与漂亮但错误的故事。
+
+<VerificationBottleneck />
+
+Rethinking the Evaluation of Harness Evolution for Agents 对此给出直接警告：如果系统在同一公开 benchmark 上反复利用 task feedback 搜索，最后又在同一 benchmark 上报告成绩，收益可能混入额外的 test-time search，并在 held-out tasks 上泛化有限。
+
+任何准备大规模采用的 Harness 改进，至少要回答：能否重复？能否通过留出任务？能否跨仓库、跨语言、跨模型？真正值得奖励的不是“偶尔跑出 99”，而是换一个合理环境仍然有效。
+
+<h2 id="monoculture">六、Harness 单一化风险：最危险的 Harness 可能是太成功的 Harness</h2>
+
+假设某个 Harness 赢得大量采用：更多用户带来更多任务与数据，更多评估围绕它构建，训练系统越来越适应它，于是它继续得分更高、获得更多使用。
+
+<HarnessMonoculture />
+
+如果 Minimal 能跑 99，健康的研究动作不是以后永远只用 Minimal，而是系统扰动提示词、工具模式、工具数量、上下文策略、记忆、首轮交互与恢复策略，识别真正产生收益的机制，再把这些机制训练回模型。
+
+否则 Harness 会成为永远扶着模型走路的拐杖，而不是帮助模型发现下一层应该学会什么的实验仪器。
+
+<h2 id="absorption">七、中心吸纳瓶颈：吸纳机制，不吞掉功能</h2>
+
+假设开放社区每月产生 100 个真正有价值的方法，但核心团队只能认真理解、验证、吸纳 3 个，飞轮仍然会堵住。反过来，如果浏览器、记忆、路由器、工作流与工具全部塞进核心，运行时最终会变成没人敢改的大泥球。
+
+<AbsorptionBottleneck />
+
+外部研究者通常看不到某条社区执行轨迹是否进入内部后训练，因此“吸纳”必须拆成两层。
+
+**可观察吸纳**：社区发现的失败模式是否进入官方 DSH 源码、文档、评估协议、更新日志、默认预设或技术报告。
+
+**推论性模型吸纳**：冻结一组扰动测试，在下一代模型上重新测试。如果不换 Harness、不调提示词，模型在工具数量、首轮模式、上下文策略等合理扰动下系统性更鲁棒，至少说明核心学到了这一类机制——但仍不能证明具体训练数据来源。
+
+<h2 id="four-gates">八、未来只看四道验证门</h2>
+
+战略假说最忌讳无论现实发生什么都能解释成自己正确。因此未来 6–18 个月，或一到两个主要模型代际，只看四件事。
+
+<FourGatesDiagram />
+
+**第一道门——迁移**：一个 Harness 发现能否离开出生地？仓库 A 到仓库 B、Python 到 TypeScript / C++ / DevOps、V4 Pro 到 Flash、DeepSeek 到其他模型家族，哪些机制可以迁移，哪些必须本地适配？
+
+**第二道门——吸纳**：核心是否在学习？同时追踪可观察吸纳与推论性模型吸纳，而不是要求外部观察者猜内部训练数据。
+
+**第三道门——模型升级红利**：下一代模型出现后，旧插件、技能与工作流是否在不修改的情况下整体变强？
+
+<ZeroRetuningDelta />
+
+如果一个字不改，成功率就在大量旧任务上上涨，零调参模型升级红利才成立。再测适配成本：如果每换一代模型都要调两周提示词，生态红利就弱。
+
+**第四道门——学习周期**：一个真实失败从发现、定位、复现、验证、提炼机制、吸纳到下一版本解决，需要多久？
+
+<h2 id="economic-check">经济性检查｜搜索是否真的变便宜？</h2>
+
+四道验证门判断系统有没有学习；经济性检查回答另一个问题：搜索是否在变得更高效。它不是第五道学习门。
+
+<EconomicCheck />
+
+收藏数只能证明有人看，插件数只能证明有人做，社交媒体热度只能证明有人讨论。这些都不能证明系统会学习。真正值得比较的是：单位验证能力成本是否下降，复用率是否提高，边际集成成本是否下降。
+
+<h2 id="learning-cycle">学习周期｜把一次失败变成系统进步需要多久？</h2>
+
+<LearningCycleTime />
+
+图中的 30 天、14 天、7 天与 48 小时只是说明该指标如何收缩，不是 DeepSeek 已观察数据。只有当这个周期持续缩短，才有资格说出现了非线性学习飞轮。
+
+<LearningPullQuote>最终最值得比较的，不是谁今天多拿了一次 99，而是谁把一次失败变成下一次系统性进步所需要的时间更短。</LearningPullQuote>
+
+<section id="kill-conditions"><LearningSystemKillConditions /></section>
+
+<section id="prediction-ledger"><PredictionLedger /></section>
+
+<section id="final-thesis"><LearningSystemThesis /></section>
+
+<section id="research-boundary"><LearningSystemBoundary /></section>
+
+<h2 id="sources">参考来源</h2>
+
+1. [DeepSeek-V4 Technical Report](https://arxiv.org/abs/2606.19348)：V4 架构、post-training、Code Agent eval、DSec sandbox / trajectory infrastructure 与内部 agentic coding。
+2. [DeepSeek Harness 官方仓库](https://github.com/deepseek-ai/deepseek-harness)：万物皆插件、开发者预览阶段与开源项目边界。
+3. [DeepSeek Harness Architecture](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/architecture.md)：Cordis、可替换插件、Profiles、Bundles 与 Runtime composition。
+4. [Cordis Tutorial](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/cordis-tutorial/index.md)：插件能力与共享 Context 的官方说明。
+5. [Agentic Harness Engineering](https://arxiv.org/abs/2604.25850)：自动 Harness evolution、跨模型迁移与消融。
+6. [Self-Harness](https://arxiv.org/abs/2606.09498)：Weakness Mining、Harness Proposal 与 Regression Testing。
+7. [One Recipe, Many Harnesses](https://arxiv.org/abs/2608.10178)：Capability realization、跨语言共享机制与局部适配。
+8. [Rethinking the Evaluation of Harness Evolution for Agents](https://arxiv.org/abs/2607.12227)：matched search budget、held-out 泛化与评测过拟合风险。
+
+<SeriesComplete />
+
+<LearningSystemNavigation />
